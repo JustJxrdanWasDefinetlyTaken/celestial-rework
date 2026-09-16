@@ -1,0 +1,282 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap");
+@import url("/assets/css/theme.css");
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: var(--color);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--color);
+  font-family: "Inter", sans-serif;
+  margin: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  display: flex;
+}
+
+input.url {
+  width: 400px;
+  padding: 15px 15px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+  background: var(--input);
+  color: var(--color);
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  margin-bottom:5px;
+}
+
+input.url:focus {
+  background: var(--pallet2);
+  border:1px solid rgba(255, 255, 255, 0.2);
+}
+
+.row-thing {
+  gap: 10px;
+  margin: 3px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 85px;
+  height: 105px;
+  padding: 9px 11px;
+  background: transparent;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8.9px;
+  cursor: pointer;
+}
+
+.image {
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  background:rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
+  box-sizing: border-box; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 7px; 
+  box-sizing: border-box;
+}
+
+.card p {
+  font-size: 16px;
+  margin: 0;
+  text-align: center;
+}
+
+#card2 p {
+  width: 90px;
+}
+
+.footer {
+  bottom: 10px;
+  right: 10px;
+  position: absolute;
+  gap: 5px;
+  display: flex;
+}
+
+.footer a {
+  color: var(--color);
+  transition: 0.1s;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.footer .ap,
+.a2,
+.a3 {
+  cursor: pointer;
+}
+
+.params {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: none;
+  z-index: 9999999;
+  overflow: hidden;
+}
+
+.params::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(128, 128, 128);
+  backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+.params video {
+  position: relative;
+  z-index: 2;
+}
+
+.bg-match {
+  background: var(--bg-match);
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.gradientthing {
+  width: 100%;
+  height: 100%;
+  background: #08090c;
+}
+
+body[theme="light"] .gradientthing {
+  background:#e1e1e1;
+}
+
+body[theme="midnight"] .gradientthing {
+  background:rgb(0, 12, 61);
+}
+
+body[theme="mocha"] .gradientthing {
+  background: rgb(24, 18, 14);
+}
+
+body[theme="pisscolorlmao"] .gradientthing {
+  background: #222222;
+}
+
+body[theme="quasar"] .gradientthing {
+  background: linear-gradient(135deg, #0f1923 0%, #1a2a3a 100%);
+}
+
+body[theme="ccm"] .gradientthing {
+  background: #1A1B26;
+}
+
+body[theme="frappe"] .gradientthing {
+  background:#303446;
+}
+
+body[theme="eww"] .gradientthing {
+  background: transparent;
+}
+
+body[theme="chad"] .gradientthing {
+  background: linear-gradient(360deg,
+      rgb(15, 23, 42) 0%,
+      rgb(40, 14, 33) 25%,
+      rgb(64, 17, 36) 50%,
+      rgb(78, 17, 36) 75%,
+      rgb(111, 19, 37) 100%);
+}
+
+body[theme="saywallahibro"] .gradientthing {
+  background: linear-gradient(360deg,
+      rgb(247, 228, 0) 0%,
+      rgb(246, 225, 0) 18%,
+      rgb(244, 220, 0) 36%,
+      rgb(242, 215, 0) 54%,
+      rgb(239, 210, 0) 72%,
+      rgb(235, 204, 0) 100%);
+}
+
+body[theme="custom"] .gradientthing {
+  background-image: var(--background);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.updlog {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: var(--color);
+  cursor: pointer;
+  width: 40px;
+}
+
+.updlog img {
+  width: 40px;
+}
+
+body[theme="light"] .updlog img {
+  filter: invert(1);
+}
+
+body[theme="light"] .image img {
+  filter: invert(1);
+}
+
+.upd-bg {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  display: none;
+}
+
+#update-log {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--pallet2);
+  border: 0.7px solid var(--border);
+  color: var(--color);
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 1000;
+  width: 40vw;
+  height: 350px;
+  overflow-y: auto;
+}
+
+#main {
+  font-size: 4rem !important;
+  letter-spacing:-1.5px;
+  margin: 0 0 15px 0;
+  white-space: nowrap;
+}
