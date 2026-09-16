@@ -33,6 +33,59 @@
             gap: 4px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px 0;
+            background: #242424;
+            overflow-x: auto;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 150px;
+            max-width: 240px;
+            padding: 9px 10px;
+            border: 1px solid #3d3d3d;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            background: #2d2d2d;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .tab.active {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .tab-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .tab-close {
+            padding: 0 4px;
+            background: transparent;
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .tab-close:hover {
+            background: #4d4d4d;
+            color: white;
+        }
+
+        .new-tab {
+            align-self: flex-start;
+            padding: 8px 12px;
+        }
+
         button {
             background: #3d3d3d;
             border: none;
@@ -77,9 +130,14 @@
 
         iframe {
             width: 100%;
-            flex: 1;
+            height: 100%;
             border: none;
             background: white;
+            display: none;
+        }
+
+        iframe.active {
+            display: block;
         }
 
         .container {
@@ -87,11 +145,19 @@
             flex-direction: column;
             height: 100vh;
         }
+
+        .viewport {
+            flex: 1;
+            min-height: 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div class="tabs" id="tabs" role="tablist">
+            <button class="new-tab" id="newTab" title="New tab" type="button">+</button>
+        </div>
         <div class="toolbar">
             <div class="nav-buttons">
                 <button id="backBtn" title="Back">←</button>
@@ -102,7 +168,7 @@
             <button id="goBtn">Go</button>
             <div class="status" id="status">Ready</div>
         </div>
-        <iframe id="browserFrame" title="Scramjet Browser"></iframe>
+        <div class="viewport" id="viewport"></div>
     </div>
     <!--
         STEP 1: Load the libraries. Keep these as plain <script> tags. Do not turn
@@ -127,12 +193,15 @@
         const { defaultConfig } = $scramjet;
         const EpoxyTransport = self.EpoxyTransport.default;
 
-        const iframe = document.getElementById("browserFrame");
         const urlInput = document.getElementById("urlInput");
         const statusEl = document.getElementById("status");
+        const tabsEl = document.getElementById("tabs");
+        const viewportEl = document.getElementById("viewport");
 
         let scramjet = null;
-        let frame = null;
+        let activeTabId = null;
+        let nextTabId = 1;
+        const tabs = new Map();
 
         function setStatus(t, err = false) {
             statusEl.textContent = t;
@@ -141,6 +210,72 @@
 
         function norm(u) {
             return u.startsWith("http") ? u : "https://" + u;
+        }
+
+        function updateTabTitle(tab) {
+            let title = "New tab";
+            try {
+                title = tab.iframe.contentDocument?.title || new URL(tab.url).hostname;
+            } catch {
+                title = new URL(tab.url).hostname;
+            }
+
+            tab.button.querySelector(".tab-title").textContent = title;
+            tab.iframe.title = title;
+        }
+
+        function selectTab(id) {
+            const tab = tabs.get(id);
+            if (!tab) return;
+
+            activeTabId = id;
+            for (const item of tabs.values()) {
+                item.button.classList.toggle("active", item.id === id);
+                item.iframe.classList.toggle("active", item.id === id);
+            }
+            urlInput.value = tab.url;
+        }
+
+        function closeTab(id) {
+            const tab = tabs.get(id);
+            if (!tab) return;
+
+            tab.button.remove();
+            tab.iframe.remove();
+            tabs.delete(id);
+
+            if (tabs.size === 0) {
+                createTab();
+            } else if (activeTabId === id) {
+                selectTab(tabs.keys().next().value);
+            }
+        }
+
+        function createTab(url = "https://google.com", title = "New tab") {
+            const id = nextTabId++;
+            const button = document.createElement("div");
+            button.className = "tab";
+            button.setAttribute("role", "tab");
+            button.innerHTML = '<span class="tab-title"></span><button class="tab-close" title="Close tab" type="button">&times;</button>';
+            button.querySelector(".tab-title").textContent = title;
+            button.addEventListener("click", () => selectTab(id));
+            button.querySelector(".tab-close").addEventListener("click", (event) => {
+                event.stopPropagation();
+                closeTab(id);
+            });
+
+            const iframe = document.createElement("iframe");
+            iframe.title = title;
+            tabsEl.insertBefore(button, document.getElementById("newTab"));
+            viewportEl.appendChild(iframe);
+
+            const tab = { id, button, iframe, frame: null, url };
+            tabs.set(id, tab);
+            iframe.addEventListener("load", () => updateTabTitle(tab));
+            selectTab(id);
+            tab.frame = scramjet.createFrame(iframe);
+            tab.frame.go(url);
+            updateTabTitle(tab);
         }
 
         async function init() {
@@ -173,9 +308,8 @@
 
                 await scramjet.wait();
 
-                // STEP 5: Bind a frame to the <iframe> and navigate it.
-                frame = scramjet.createFrame(iframe);
-                frame.go("https://google.com");
+                // STEP 5: Create the initial browser tab.
+                createTab();
 
                 setStatus("Ready");
             } catch (e) {
@@ -188,10 +322,15 @@
         function go() {
             const url = norm(urlInput.value);
             urlInput.value = url;
-            frame?.go(url);
+            const tab = tabs.get(activeTabId);
+            if (!tab) return;
+            tab.url = url;
+            tab.frame.go(url);
+            updateTabTitle(tab);
         }
 
         document.getElementById("goBtn").onclick = go;
+        document.getElementById("newTab").onclick = () => createTab();
 
         urlInput.addEventListener("keydown", e => {
             if (e.key === "Enter") go();
