@@ -160,10 +160,6 @@
                     wisp: "wss://wisp.mercurywork.shop/"
                 });
 
-                await import("/clst.magic.mjs").then(({ patchEpoxyTransport }) => {
-                    patchEpoxyTransport(transport);
-                });
-
                 await transport.init();
 
                 // STEP 4: Create the controller. defaultConfig is fine to start with;
@@ -178,7 +174,7 @@
 
                 // STEP 5: Bind a frame to the <iframe> and navigate it.
                 frame = scramjet.createFrame(iframe);
-                frame.go("https://example.com");
+                frame.go("https://google.com");
 
                 setStatus("Ready");
             } catch (e) {
