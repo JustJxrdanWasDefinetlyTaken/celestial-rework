@@ -23,6 +23,7 @@
     "@mercuryworkshop/libcurl-transport": "^1.5.2",
     "@mercuryworkshop/scramjet": "^1.1.0",
     "@mercuryworkshop/wisp-js": "^0.4.0",
+    "myinstants-scraper": "^0.1.1",
     "sanitize-html": "^2.17.0",
     "socks-proxy-agent": "^10.0.0",
     "youtube-dl-exec": "^3.1.7",

@@ -7,6 +7,7 @@ import { existsSync } from "node:fs";
 import { stat } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { handleMyInstantsSearch } from "./server.ts";
 import {
   brotliCompressSync,
   constants as zlibConstants,
@@ -1140,6 +1141,12 @@ function createFetchHandler(
         return handleScreenShare(
           req,
         );
+      }
+
+      if (
+        path === "/api/search"
+      ) {
+        return handleMyInstantsSearch(req);
       }
 
       if (

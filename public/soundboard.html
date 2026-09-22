@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>celestial.</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #1a1a1a;
+            color: #fff;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        .toolbar {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 18px;
+
+            background: #2d2d2d;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .search {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            max-width: 700px;
+        }
+
+        .search input {
+            width: 100%;
+            height: 40px;
+
+            padding: 0 14px;
+
+            border: 1px solid #444;
+            border-radius: 8px;
+
+            outline: none;
+
+            background: #202020;
+            color: #fff;
+
+            font-size: 14px;
+        }
+
+        .search input:focus {
+            border-color: #666;
+        }
+
+        button {
+            border: 1px solid #444;
+            border-radius: 8px;
+
+            background: #303030;
+            color: #fff;
+
+            cursor: pointer;
+
+            transition:
+                background 0.15s,
+                transform 0.05s;
+        }
+
+        button:hover {
+            background: #3a3a3a;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .search button {
+            height: 40px;
+            padding: 0 16px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 18px;
+        }
+
+        .status {
+            margin-bottom: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .sound {
+            padding: 16px;
+
+            background: #242424;
+            border: 1px solid #383838;
+            border-radius: 12px;
+
+            transition:
+                border-color 0.15s,
+                transform 0.15s;
+        }
+
+        .sound:hover {
+            border-color: #555;
+            transform: translateY(-2px);
+        }
+
+        .sound-title {
+            min-height: 42px;
+
+            margin-bottom: 12px;
+
+            display: flex;
+            align-items: center;
+
+            font-size: 15px;
+            font-weight: 600;
+
+            overflow: hidden;
+        }
+
+        .sound-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .play {
+            flex: 1;
+            height: 36px;
+        }
+
+        .open {
+            width: 40px;
+            height: 36px;
+
+            font-size: 15px;
+        }
+
+        .empty {
+            grid-column: 1 / -1;
+
+            padding: 50px 20px;
+
+            text-align: center;
+            color: #777;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .toolbar {
+                height: auto;
+                padding: 12px;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                width: 100%;
+            }
+
+            .search {
+                max-width: none;
+                width: 100%;
+            }
+
+            main {
+                padding: 20px 12px;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="toolbar">
+
+        <div class="logo">
+            celestial.
+        </div>
+
+        <form class="search" id="searchForm">
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Search MyInstants..."
+                autocomplete="off"
+            >
+
+            <button type="submit">
+                Search
+            </button>
+        </form>
+
+    </header>
+
+    <main>
+
+        <div class="status" id="status">
+            Search for a sound.
+        </div>
+
+        <section
+            class="results"
+            id="results"
+        ></section>
+
+    </main>
+
+    <script>
+        const searchForm =
+            document.getElementById("searchForm");
+
+        const searchInput =
+            document.getElementById("searchInput");
+
+        const results =
+            document.getElementById("results");
+
+        const status =
+            document.getElementById("status");
+
+        let currentAudio = null;
+
+
+        function escapeHTML(value) {
+            const div =
+                document.createElement("div");
+
+            div.textContent = value ?? "";
+
+            return div.innerHTML;
+        }
+
+
+        function getSoundURL(sound) {
+            return (
+                sound.audioUrl ||
+                sound.audio ||
+                sound.mp3 ||
+                sound.url ||
+                sound.sound ||
+                sound.file ||
+                ""
+            );
+        }
+
+
+        function getSoundTitle(sound) {
+            return (
+                sound.title ||
+                sound.name ||
+                sound.text ||
+                "Untitled sound"
+            );
+        }
+
+
+        function getPageURL(sound) {
+            return (
+                sound.detailUrl ||
+                sound.pageUrl ||
+                sound.page ||
+                sound.link ||
+                sound.href ||
+                ""
+            );
+        }
+
+
+        function playSound(url, button) {
+            if (!url) {
+                status.textContent =
+                    "This sound has no playable URL.";
+
+                return;
+            }
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            currentAudio = new Audio(url);
+
+            button.textContent = "Playing...";
+
+            currentAudio.addEventListener(
+                "ended",
+                () => {
+                    button.textContent = "Play";
+                }
+            );
+
+            currentAudio.addEventListener(
+                "error",
+                () => {
+                    button.textContent = "Play";
+
+                    status.textContent =
+                        "The sound could not be played.";
+                }
+            );
+
+            currentAudio.play().catch(() => {
+                button.textContent = "Play";
+
+                status.textContent =
+                    "The browser blocked audio playback.";
+            });
+        }
+
+
+        function renderResults(data) {
+            results.innerHTML = "";
+
+            const sounds =
+                Array.isArray(data)
+                    ? data
+                    : data.results ||
+                      data.sounds ||
+                      data.data ||
+                      [];
+
+            if (!sounds.length) {
+                results.innerHTML = `
+                    <div class="empty">
+                        No sounds found.
+                    </div>
+                `;
+
+                return;
+            }
+
+            status.textContent =
+                `${sounds.length} sound${
+                    sounds.length === 1 ? "" : "s"
+                } found.`;
+
+            for (const sound of sounds) {
+                const title =
+                    getSoundTitle(sound);
+
+                const audioURL =
+                    getSoundURL(sound);
+
+                const pageURL =
+                    getPageURL(sound);
+
+                const card =
+                    document.createElement("article");
+
+                card.className = "sound";
+
+                card.innerHTML = `
+                    <div class="sound-title">
+                        ${escapeHTML(title)}
+                    </div>
+
+                    <div class="sound-actions">
+
+                        <button class="play">
+                            Play
+                        </button>
+
+                        ${
+                            pageURL
+                                ? `
+                                    <button
+                                        class="open"
+                                        title="Open MyInstants page"
+                                    >
+                                        ↗
+                                    </button>
+                                `
+                                : ""
+                        }
+
+                    </div>
+                `;
+
+                const playButton =
+                    card.querySelector(".play");
+
+                playButton.addEventListener(
+                    "click",
+                    () => {
+                        playSound(
+                            audioURL,
+                            playButton
+                        );
+                    }
+                );
+
+                const openButton =
+                    card.querySelector(".open");
+
+                if (openButton) {
+                    openButton.addEventListener(
+                        "click",
+                        () => {
+                            window.open(
+                                pageURL,
+                                "_blank",
+                                "noopener,noreferrer"
+                            );
+                        }
+                    );
+                }
+
+                results.appendChild(card);
+            }
+        }
+
+
+        async function searchSounds(query) {
+            status.textContent =
+                `Searching for "${query}"...`;
+
+            results.innerHTML = "";
+
+            searchForm.classList.add("loading");
+
+            try {
+                const response =
+                    await fetch(
+                        `/api/search?q=${encodeURIComponent(query)}`
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error ||
+                        "Search failed."
+                    );
+                }
+
+                renderResults(data);
+
+            } catch (error) {
+                console.error(error);
+
+                status.textContent =
+                    error.message ||
+                    "Something went wrong.";
+
+                results.innerHTML = `
+                    <div class="empty">
+                        Search failed.
+                    </div>
+                `;
+
+            } finally {
+                searchForm.classList.remove(
+                    "loading"
+                );
+            }
+        }
+
+
+        searchForm.addEventListener(
+            "submit",
+            (event) => {
+                event.preventDefault();
+
+                const query =
+                    searchInput.value.trim();
+
+                if (!query) {
+                    status.textContent =
+                        "Enter something to search for.";
+
+                    return;
+                }
+
+                searchSounds(query);
+            }
+        );
+
+
+        searchInput.focus();
+    </script>
+
+</body>
+</html>
