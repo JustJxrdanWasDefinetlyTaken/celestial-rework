@@ -9,7 +9,12 @@ import { readFile, stat } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
-import sanitizeHtml from "sanitize-html";
+import * as sanitizeHtmlModule from "sanitize-html";
+
+const sanitizeHtml = sanitizeHtmlModule as unknown as (
+  dirty: string,
+  options: Record<string, unknown>,
+) => string;
 
 logging.set_level(logging.NONE);
 
@@ -65,7 +70,7 @@ function writeHtml(
 }
 
 function htmlCandidates(urlPath: string): string[] {
-  const decoded = decodeURIComponent(urlPath.split("?")[0]);
+  const decoded = decodeURIComponent(urlPath.split("?")[0] ?? "");
   if (decoded.includes("..")) return [];
   if (decoded.endsWith("/")) return [join(publicDir, decoded, "index.html")];
   if (decoded.endsWith(".html")) return [join(publicDir, decoded)];
@@ -151,7 +156,7 @@ async function tryStaticPrefix(
 ): Promise<boolean> {
   if (!urlPath.startsWith(prefix)) return false;
   const sub = urlPath.slice(prefix.length);
-  const decoded = decodeURIComponent(sub.split("?")[0]);
+  const decoded = decodeURIComponent(sub.split("?")[0] ?? "");
   if (decoded.includes("..")) {
     res.statusCode = 400;
     res.end();
@@ -229,7 +234,7 @@ async function handleNotFound(res: ServerResponse, acceptEncoding: string): Prom
 const server = createServer(async (req, res) => {
   try {
     const url = req.url ?? "/";
-    const path = url.split("?")[0];
+    const path = url.split("?")[0] ?? "/";
 
     if (await tryStaticPrefix(req, res, "/mux/", baremuxPath, path)) return;
     if (await tryStaticPrefix(req, res, "/epoxy/", epoxyPath, path)) return;

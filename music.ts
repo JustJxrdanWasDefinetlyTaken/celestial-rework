@@ -753,8 +753,9 @@ async function handleLyricsPrefetch(
   }
 
   try {
-    const body =
-      await req.json();
+    const body = await req.json() as {
+      source?: unknown;
+    };
 
     const response =
       await fetch(
@@ -1010,8 +1011,9 @@ async function handleSource(
   }
 
   try {
-    const body =
-      await req.json();
+    const body = await req.json() as {
+      source?: unknown;
+    };
 
     const source =
       body?.source;

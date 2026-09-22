@@ -1,3 +1,5 @@
+/// <reference types="bun" />
+
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
@@ -9,7 +11,12 @@ import {
   brotliCompressSync,
   constants as zlibConstants,
 } from "node:zlib";
-import sanitizeHtml from "sanitize-html";
+import * as sanitizeHtmlModule from "sanitize-html";
+
+const sanitizeHtml = sanitizeHtmlModule as unknown as (
+  dirty: string,
+  options: Record<string, unknown>,
+) => string;
 
 type HtmlTransform = (html: string, request: Request) => string;
 
@@ -151,6 +158,8 @@ function htmlResponse(
 ): Response {
   const useBr = acceptEncoding.includes("br");
   const body = useBr ? entry.br : entry.raw;
+  const responseBody = new ArrayBuffer(body.byteLength);
+  new Uint8Array(responseBody).set(body);
 
   const headers: Record<string, string> = {
     "Content-Type": "text/html; charset=utf-8",
@@ -163,7 +172,7 @@ function htmlResponse(
     headers["Content-Encoding"] = "br";
   }
 
-  return new Response(body, {
+  return new Response(responseBody, {
     status,
     headers,
   });
@@ -174,7 +183,7 @@ function htmlCandidates(
   urlPath: string,
 ): string[] {
   const decoded = decodeURIComponent(
-    urlPath.split("?")[0],
+    urlPath.split("?")[0] ?? "",
   );
 
   if (decoded.includes("..")) {
@@ -307,7 +316,7 @@ async function tryStaticPrefix(
   const sub = urlPath.slice(prefix.length);
 
   const decoded = decodeURIComponent(
-    sub.split("?")[0],
+    sub.split("?")[0] ?? "",
   );
 
   if (decoded.includes("..")) {
@@ -648,7 +657,8 @@ async function handleChat(
     req.headers
       .get("x-forwarded-for")
       ?.split(",")[0]
-      .trim() ?? "unknown";
+      ?.trim()
+      ?? "unknown";
 
   const rl = checkRateLimit(
     ipLimits,
@@ -881,7 +891,8 @@ async function handleScreenShare(
     req.headers
       .get("x-forwarded-for")
       ?.split(",")[0]
-      .trim() ?? "unknown";
+      ?.trim()
+      ?? "unknown";
 
   const rl = checkRateLimit(
     ssIpLimits,
