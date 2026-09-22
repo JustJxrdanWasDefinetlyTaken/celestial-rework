@@ -1,3 +1,5 @@
+import { installLucideWispEncryption } from "./lucide-wisp.mjs";
+
 const EPOXY_URL = "https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-tls@2.1.19-1/full/epoxy-bundled.js";
 const LIBCURL_URL = "https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.mjs";
 
@@ -9,6 +11,8 @@ export class CurlEpoxyTransport {
   }
 
   async init() {
+    installLucideWispEncryption();
+
     const [{ libcurl }, epoxy] = await Promise.all([
       import(LIBCURL_URL),
       import(EPOXY_URL),

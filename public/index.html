@@ -181,13 +181,16 @@
         from /controller/, so keep those paths unless you also change the controller
         config.
     -->
-    <script src="/clst.magic.js"></script>'
     <script src="/scramjet/scramjet.js"></script>
     <script src="/controller/controller.api.js"></script>
     <!-- Epoxy is the network transport. Drop in a local copy if you don't want the CDN. -->
     <script src="https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@3.0.1/dist/index.js"></script>
 
-    <script>
+    <script type="module">
+        import {
+            installLucideWispEncryption,
+            LUCIDE_WISP_URL,
+        } from "/lucide-wisp.mjs";
         // STEP 2: Pull the classes off the globals the scripts above set up.
         const { Controller } = $scramjetController;
         const { defaultConfig } = $scramjet;
@@ -289,11 +292,13 @@
                     navigator.serviceWorker.controller ??
                     (await navigator.serviceWorker.ready).active;
 
-                // STEP 3: Connect a transport to a wisp server.
-                // Use your own wisp server in production. Public ones get
-                // rate-limited and can go offline.
+                // STEP 3: Wrap Lucide Wisp sockets, then connect Epoxy.
+                // LUCIDE_WISP_URL is wss://lucideon.top/fairs/ (filtered).
+                // Switch the export in lucide-wisp.mjs to LUCIDE_WISP_UNFILTERED
+                // for wss://lucideon.top/piers/.
+                installLucideWispEncryption();
                 const transport = new EpoxyTransport({
-                    wisp: "wss://wisp.mercurywork.shop/"
+                    wisp: LUCIDE_WISP_URL
                 });
 
                 await transport.init();
