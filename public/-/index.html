@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>games</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body[theme="default"] {
+      --background: #08090c;
+      --color: white;
+      --pallet: #3a3a3a;
+      --pallet-hover: rgba(255, 255, 255, 0.092);
+      --button: #222;
+      --border: rgba(255, 255, 255, 0.3);
+      --input: rgba(255, 255, 255, 0.02);
+      --pallet2: #111;
+      --settings: #2a2a2a;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--background);
+      color: var(--color);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    #top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 12px 0;
+    }
+
+    #search {
+      width: 100%;
+      min-width: 0;
+      height: 40px;
+      padding: 0 13px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: 0;
+      background: var(--input);
+      color: var(--color);
+      font: inherit;
+    }
+
+    #search::placeholder { color: var(--color); opacity: .55; }
+    #search:focus { border-color: var(--color); }
+
+    #filters, #categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding: 12px 12px 0;
+    }
+
+    .filter, .category {
+      border: 1px solid var(--border);
+      color: var(--color);
+      cursor: pointer;
+      font: inherit;
+      white-space: nowrap;
+    }
+
+    .filter {
+      padding: 7px 12px;
+      border-radius: 7px;
+      background: var(--button);
+      font-size: 13px;
+    }
+
+    .category {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--input);
+      font-size: 12px;
+      opacity: .8;
+    }
+
+    .filter:hover, .filter.active { background: var(--pallet-hover); }
+    .category:hover, .category.active { background: var(--pallet); opacity: 1; }
+
+    #status {
+      padding: 10px 12px 0;
+      font-size: 13px;
+      opacity: .65;
+    }
+
+    #games {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .game {
+      position: relative;
+      min-width: 0;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--pallet2);
+      isolation: isolate;
+    }
+
+    .game img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .25s ease;
+    }
+
+    .game:hover img { transform: scale(1.04); }
+
+    .name {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 38px 12px 12px;
+      background: rgba(8, 9, 12, .28);
+      color: var(--color);
+      font-size: 15px;
+      font-weight: 650;
+      text-align: center;
+      opacity: 0;
+      backdrop-filter: blur(0);
+      -webkit-backdrop-filter: blur(0);
+      transition: opacity .2s ease, backdrop-filter .2s ease;
+      pointer-events: none;
+    }
+
+    .game:hover .name, .game:focus-visible .name {
+      opacity: 1;
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+
+    .game-type {
+      position: absolute;
+      z-index: 2;
+      top: 7px;
+      left: 7px;
+      padding: 4px 7px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: rgba(8, 9, 12, .7);
+      color: var(--color);
+      font-size: 10px;
+      letter-spacing: .04em;
+      text-transform: lowercase;
+      pointer-events: none;
+    }
+
+    .bookmark {
+      position: absolute;
+      z-index: 3;
+      top: 7px;
+      right: 7px;
+      display: grid;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: rgba(8, 9, 12, .75);
+      color: white;
+      font-size: 19px;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+
+    .game:hover .bookmark, .game:focus-within .bookmark, .bookmark.saved { opacity: 1; }
+    .bookmark.saved { background: var(--button); }
+    .game:focus-visible { outline: 2px solid var(--color); outline-offset: 2px; }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 24px 12px;
+      font-size: 14px;
+      opacity: .65;
+    }
+
+    @media (max-width: 500px) {
+      #games { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 9px; }
+    }
+
+    @media (hover: none) {
+      .bookmark { opacity: 1; }
+      .name { opacity: 1; background: rgba(8, 9, 12, .35); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body theme="default">
+  <div id="top">
+    <input id="search" type="search" placeholder="search games..." autocomplete="off" spellcheck="false">
+  </div>
+
+  <div id="filters" aria-label="game views">
+    <button class="filter active" data-view="all" type="button">all games</button>
+    <button class="filter" data-view="bookmarks" type="button">★ bookmarks</button>
+  </div>
+  <div id="categories" aria-label="filter by category"></div>
+  <div id="status">loading games...</div>
+  <div id="games"></div>
+
+  <script>
+    "use strict";
+
+    // Main catalog plus a raw GitHub mirror and four configurable fallback placeholders.
+    const GAME_JSON_URL = "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/-.json";
+    const JSON_FALLBACKS = [
+      "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/-.json",
+      "https://CDN-2-PLACEHOLDER.example/-.json",
+      "https://CDN-3-PLACEHOLDER.example/-.json",
+      "https://CDN-4-PLACEHOLDER.example/-.json",
+      "https://CDN-5-PLACEHOLDER.example/-.json"
+    ];
+
+    // Replace these four with your actual asset CDN base URLs.
+    const ASSET_CDNS = [
+      "https://CDN-2-PLACEHOLDER.example/",
+      "https://CDN-3-PLACEHOLDER.example/",
+      "https://CDN-4-PLACEHOLDER.example/",
+      "https://CDN-5-PLACEHOLDER.example/"
+    ];
+
+    const gamesEl = document.getElementById("games");
+    const statusEl = document.getElementById("status");
+    const searchEl = document.getElementById("search");
+    const filterButtons = [...document.querySelectorAll(".filter")];
+    const categoriesEl = document.getElementById("categories");
+    const BOOKMARK_KEY = "celestial-game-bookmarks-v1";
+
+    let GAME_CATALOG = [];
+    let currentView = "all";
+    let currentCategory = "all";
+    let bookmarks = readBookmarks();
+
+    function readBookmarks() {
+      try {
+        const value = JSON.parse(localStorage.getItem(BOOKMARK_KEY) || "[]");
+        return new Set(Array.isArray(value) ? value.filter(item => typeof item === "string") : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveBookmarks() {
+      try {
+        localStorage.setItem(BOOKMARK_KEY, JSON.stringify([...bookmarks]));
+      } catch (error) {
+        console.warn("could not save bookmarks", error);
+      }
+    }
+
+    function asList(data) {
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.games)) return data.games;
+      if (data && Array.isArray(data.data)) return data.data;
+      if (data && typeof data === "object") return Object.values(data);
+      return [];
+    }
+
+    function firstValue(object, keys) {
+      for (const key of keys) {
+        const value = object?.[key];
+        if (value !== undefined && value !== null && String(value).trim() !== "") {
+          return String(value).trim();
+        }
+      }
+      return "";
+    }
+
+    function resolveCandidates(value, sourceURL, isLocal) {
+      if (!value) return [];
+      const raw = String(value).trim();
+
+      if (/^(https?:)?\/\//i.test(raw) || /^(data:|blob:)/i.test(raw)) {
+        return [raw.startsWith("//") ? location.protocol + raw : raw];
+      }
+
+      const relative = raw.replace(/^\.\//, "").replace(/^\/+/, "");
+      const candidates = [];
+
+      if (isLocal) {
+        // local paths are served from the website hosting this page
+        try { candidates.push(new URL("/" + relative, location.origin).href); } catch {}
+      } else {
+        // Preserve the repository path for relative files in the JSON repository.
+        if (sourceURL) {
+          try {
+            const base = new URL("./", sourceURL);
+            candidates.push(new URL(relative, base).href);
+          } catch {}
+        }
+
+        for (const cdn of ASSET_CDNS) {
+          try {
+            candidates.push(new URL(relative, cdn.endsWith("/") ? cdn : cdn + "/").href);
+          } catch {}
+        }
+      }
+
+      return [...new Set(candidates)];
+    }
+
+    function normalizeGames(data, sourceURL) {
+      const seen = new Set();
+
+      return asList(data).map((item, index) => {
+        if (!item || typeof item !== "object") return null;
+
+        const rawURL = firstValue(item, ["url", "path", "file", "html", "href"]);
+        const func = firstValue(item, ["func"]);
+        const rawImage = firstValue(item, ["img", "image", "thumbnail", "icon", "cover"]);
+        if (!rawURL && !func) return null;
+
+        const source = firstValue(item, ["source"]);
+        const isLocal = source.toLowerCase() === "local";
+        const urlCandidates = resolveCandidates(rawURL, sourceURL, isLocal);
+        const imgCandidates = resolveCandidates(rawImage, sourceURL, isLocal);
+        const name = firstValue(item, ["name", "title"]) || `game ${index + 1}`;
+        const type = firstValue(item, ["type"]);
+        const categories = Array.isArray(item.categories)
+          ? item.categories.map(value => String(value).trim()).filter(Boolean)
+          : [];
+        const id = firstValue(item, ["id", "slug"]) || `${source}:${rawURL || func}`;
+
+        if (seen.has(id)) return null;
+        seen.add(id);
+
+        return {
+          id, name, type, categories, source, func,
+          url: urlCandidates[0] || "",
+          urlCandidates,
+          img: imgCandidates[0] || "",
+          imgCandidates,
+          search: [name, type, source, ...categories].join(" ").toLowerCase()
+        };
+      }).filter(Boolean);
+    }
+
+    function openGame(game) {
+      if (game.func) {
+        // Safely support the catalog's sendRequest('https://example.com'); pattern without eval().
+        const match = game.func.match(/^\s*sendRequest\s*\(\s*(['"])(.*?)\1\s*\)\s*;?\s*$/s);
+
+        if (match) {
+          if (typeof window.sendRequest === "function") {
+            window.sendRequest(match[2]);
+          } else {
+            console.warn("this game requires the site's sendRequest(url) function.");
+            alert("the proxy request function (sendRequest) is not available on this page.");
+          }
+          return;
+        }
+      }
+
+      const url = game.urlCandidates?.[0] || game.url;
+      if (!url) {
+        alert("this game does not have a playable url.");
+        return;
+      }
+
+      const tab = window.open(url, "_blank", "noopener,noreferrer");
+      if (!tab) window.location.href = url;
+    }
+
+    function makeCard(game) {
+      const card = document.createElement("div");
+      card.className = "game";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "open " + game.name);
+
+      const img = document.createElement("img");
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      const imageCandidates = game.imgCandidates || [];
+      let imageIndex = 0;
+
+      img.onerror = () => {
+        imageIndex++;
+        if (imageIndex < imageCandidates.length) {
+          img.src = imageCandidates[imageIndex];
+        } else {
+          img.style.display = "none";
+        }
+      };
+
+      if (imageCandidates.length) img.src = imageCandidates[0];
+      else img.style.display = "none";
+      card.appendChild(img);
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = game.name;
+      card.appendChild(name);
+
+      if (game.type) {
+        const type = document.createElement("span");
+        type.className = "game-type";
+        type.textContent = game.type;
+        card.appendChild(type);
+      }
+
+      const save = document.createElement("button");
+      save.type = "button";
+      save.className = "bookmark" + (bookmarks.has(game.id) ? " saved" : "");
+      save.textContent = bookmarks.has(game.id) ? "★" : "☆";
+      save.title = bookmarks.has(game.id) ? "remove bookmark" : "bookmark game";
+      save.setAttribute("aria-label", save.title);
+      save.addEventListener("click", event => {
+        event.stopPropagation();
+        toggleBookmark(game.id);
+      });
+      card.appendChild(save);
+
+      card.addEventListener("click", () => openGame(game));
+      card.addEventListener("keydown", event => {
+        if (event.target === card && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          openGame(game);
+        }
+      });
+
+      return card;
+    }
+
+    function renderCategories() {
+      const allCategories = [...new Set(
+        GAME_CATALOG.flatMap(game => game.categories || [])
+          .map(value => String(value).trim().toLowerCase())
+          .filter(Boolean)
+      )].sort();
+
+      categoriesEl.replaceChildren();
+
+      const all = document.createElement("button");
+      all.type = "button";
+      all.className = "category" + (currentCategory === "all" ? " active" : "");
+      all.textContent = "all categories";
+      all.addEventListener("click", () => {
+        currentCategory = "all";
+        renderCategories();
+        render();
+      });
+      categoriesEl.appendChild(all);
+
+      for (const category of allCategories) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "category" + (currentCategory === category ? " active" : "");
+        button.textContent = category;
+        button.addEventListener("click", () => {
+          currentCategory = category;
+          renderCategories();
+          render();
+        });
+        categoriesEl.appendChild(button);
+      }
+    }
+
+    function render() {
+      const query = searchEl.value.trim().toLowerCase();
+      const visible = GAME_CATALOG.filter(game => {
+        const matches = !query || game.search.includes(query);
+        const categoryMatches = currentCategory === "all" ||
+          (game.categories || []).some(category => String(category).toLowerCase() === currentCategory);
+        return matches && categoryMatches &&
+          (currentView !== "bookmarks" || bookmarks.has(game.id));
+      });
+
+      const fragment = document.createDocumentFragment();
+      if (!visible.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = currentView === "bookmarks" && !query
+          ? "no bookmarks yet. hover over a game and click ☆ to save it."
+          : "no games found.";
+        fragment.appendChild(empty);
+      } else {
+        visible.forEach(game => fragment.appendChild(makeCard(game)));
+      }
+
+      gamesEl.replaceChildren(fragment);
+      statusEl.textContent = `${visible.length} ${visible.length === 1 ? "game" : "games"}${currentView === "bookmarks" ? " bookmarked" : ""}`;
+    }
+
+    function toggleBookmark(id) {
+      if (bookmarks.has(id)) bookmarks.delete(id);
+      else bookmarks.add(id);
+      saveBookmarks();
+      render();
+    }
+
+    searchEl.addEventListener("input", render);
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        currentView = button.dataset.view;
+        filterButtons.forEach(item => item.classList.toggle("active", item === button));
+        render();
+      });
+    });
+
+    async function loadGames() {
+      statusEl.textContent = "loading games...";
+      const sources = [...new Set([GAME_JSON_URL, ...JSON_FALLBACKS].filter(Boolean))];
+      let lastError;
+
+      for (const source of sources) {
+        // Skip obvious placeholder endpoints until they are replaced with real URLs.
+        if (source.includes(".example/")) continue;
+
+        try {
+          const response = await fetch(source, { cache: "no-store" });
+          if (!response.ok) throw new Error(`http ${response.status}`);
+
+          const data = await response.json();
+          const loaded = normalizeGames(data, source);
+          if (!loaded.length) throw new Error("no usable games found in this catalog.");
+
+          GAME_CATALOG = loaded;
+          renderCategories();
+          render();
+          return;
+        } catch (error) {
+          lastError = error;
+          console.warn("game catalog source failed:", source, error);
+        }
+      }
+
+      statusEl.textContent = "could not load games. check the json url, browser console, and cdn fallback urls.";
+      gamesEl.replaceChildren();
+      console.error("all game catalog sources failed", lastError);
+    }
+
+    loadGames();
+  </script>
+</body>
+</html>

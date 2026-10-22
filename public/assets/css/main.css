@@ -1,0 +1,413 @@
+@import url('/assets/css/theme.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--background);
+    color: var(--color);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 8px;
+    background: var(--pallet2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 162px;
+    min-width: 162px;
+    max-width: 162px;
+    height: 42px;
+    min-height: 42px;
+    padding: 0 10px;
+    margin: 0;
+    align-self: flex-end;
+    flex: 0 0 162px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: var(--background);
+    color: var(--color);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    text-align: left;
+}
+
+.tab.active {
+    background: var(--button);
+    color: var(--color);
+}
+
+.tab-globe-icon,
+.tab-favicon,
+.tab-placeholder {
+    display: block;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    max-width: 16px;
+    flex: 0 0 16px;
+    margin: 0;
+    padding: 0;
+    object-fit: contain;
+    align-self: center;
+}
+
+.tab-globe-icon {
+    stroke-width: 2;
+}
+
+.tab-globe-icon[hidden] {
+    display: none;
+}
+
+.tab-favicon {
+    display: none;
+}
+
+.tab-favicon.loaded {
+    display: block;
+}
+
+.tab-title {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+    align-self: center;
+    margin-bottom: 2.5px;
+}
+
+.tab-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    min-width: 20px;
+    max-width: 20px;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    flex: 0 0 20px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color);
+    cursor: pointer;
+    align-self: center;
+}
+
+.tab-close:hover {
+    background: var(--pallet-hover);
+}
+
+.tab-close svg,
+.tab-close i {
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+}
+
+.new-tab,
+#newTab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    box-sizing: border-box;
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0;
+    margin: 0;
+    flex: 0 0 30px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color);
+    line-height: 1;
+    cursor: pointer;
+    margin-top: 3px;
+}
+
+#newTab:hover {
+    background: var(--pallet-hover);
+}
+
+#newTab svg,
+#newTab i {
+    display: block;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    margin: 0;
+    padding: 0;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 50px;
+    padding: 6px 8px;
+    background: var(--button);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pallet);
+    border: none;
+    color: var(--color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1;
+    transition: background 0.2s, transform 0.2s;
+}
+
+button:hover {
+    background: var(--pallet-hover);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+.toolbar button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.toolbar button svg,
+.toolbar button i {
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.toolbar input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--color);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+.toolbar input:focus {
+    border-color: var(--border);
+}
+
+.status {
+    display: none;
+}
+
+.viewport {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+iframe {
+    display: none;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: var(--background);
+}
+
+iframe.active {
+    display: block;
+}
+
+.newtab-page {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px;
+    background: var(--background, #0b0b0b);
+}
+
+.newtab-page[hidden] {
+    display: none;
+}
+
+.newtab-title {
+    margin: 0;
+    color: var(--color, #fff);
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 700;
+    letter-spacing: -3px;
+}
+
+.newtab-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(100%, 540px);
+    padding: 6px 8px 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--button);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.newtab-search:focus-within {
+    border-color: var(--color);
+}
+
+.newtab-search input {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--color);
+    font: inherit;
+    font-size: 14px;
+}
+
+.newtab-search input::placeholder {
+    color: var(--color);
+    opacity: 0.55;
+}
+
+.newtab-search button {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: var(--pallet);
+    color: var(--color);
+    cursor: pointer;
+}
+
+.newtab-search button:hover {
+    background: var(--pallet-hover);
+}
+
+.newtab-search button svg {
+    width: 18px;
+    height: 18px;
+}
+
+input,
+button {
+    font-family: inherit;
+}
+
+@media (max-width: 600px) {
+    .tabs {
+        padding: 0 5px;
+        gap: 3px;
+    }
+
+    .tab {
+        width: 140px;
+        min-width: 140px;
+        max-width: 140px;
+        flex-basis: 140px;
+        gap: 6px;
+        padding: 0 8px;
+    }
+
+    .toolbar {
+        gap: 4px;
+        padding: 5px;
+    }
+
+    .nav-buttons {
+        gap: 3px;
+    }
+
+    .toolbar button {
+        width: 32px;
+        min-width: 32px;
+        height: 34px;
+    }
+
+    .toolbar input {
+        height: 34px;
+        padding: 0 8px;
+        font-size: 13px;
+    }
+
+    .newtab-search {
+        gap: 5px;
+        padding-left: 12px;
+    }
+}

@@ -5,306 +5,657 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>celestial.</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #1a1a1a;
-            height: 100vh;
+        .viewport {
+            position: relative;
             overflow: hidden;
         }
 
-        .toolbar {
-            display: flex;
-            gap: 8px;
-            padding: 12px;
-            background: #2d2d2d;
-            border-bottom: 1px solid #3d3d3d;
-            align-items: center;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 4px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 6px;
-            padding: 8px 12px 0;
-            background: #242424;
-            overflow-x: auto;
-        }
-
-        .tab {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 150px;
-            max-width: 240px;
-            padding: 9px 10px;
-            border: 1px solid #3d3d3d;
-            border-bottom: none;
-            border-radius: 6px 6px 0 0;
-            background: #2d2d2d;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .tab.active {
-            background: #1a1a1a;
-            color: white;
-        }
-
-        .tab-title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-        }
-
-        .tab-close {
-            padding: 0 4px;
-            background: transparent;
-            color: #aaa;
-            font-size: 16px;
-        }
-
-        .tab-close:hover {
-            background: #4d4d4d;
-            color: white;
-        }
-
-        .new-tab {
-            align-self: flex-start;
-            padding: 8px 12px;
-        }
-
-        button {
-            background: #3d3d3d;
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        button:hover {
-            background: #4d4d4d;
-        }
-
-        button:active {
-            transform: scale(0.95);
-        }
-
-        input {
-            flex: 1;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #3d3d3d;
-            background: #1a1a1a;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #0066cc;
-        }
-
-        .status {
-            padding: 4px 12px;
-            background: #3d3d3d;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        iframe {
+        .viewport iframe {
             width: 100%;
             height: 100%;
             border: none;
-            background: white;
+        }
+
+        .viewport iframe:not(.active) {
             display: none;
         }
 
-        iframe.active {
+        .newtab-page {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            padding: 24px;
+            background: var(--background, #0b0b0b);
+        }
+
+        .newtab-page[hidden] {
+            display: none;
+        }
+
+        .newtab-title {
+            margin: 0;
+            color: var(--color, #fff);
+            font-size: clamp(42px, 8vw, 72px);
+            font-weight: 700;
+            letter-spacing: -3px;
+        }
+
+        .newtab-search {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: min(100%, 560px);
+            padding: 8px 10px 8px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .newtab-search:focus-within {
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .newtab-search input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--color, #fff);
+            font: inherit;
+            font-size: 15px;
+        }
+
+        .newtab-search input::placeholder {
+            color: var(--color, #fff);
+            opacity: 0.55;
+        }
+
+        .newtab-search button {
+            display: grid;
+            flex-shrink: 0;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color, #fff);
+            cursor: pointer;
+        }
+
+        .newtab-search button:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .newtab-search button svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .tab-globe-icon,
+        .tab-favicon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .tab-favicon {
+            object-fit: contain;
+            display: none;
+        }
+
+        .tab-favicon.loaded {
             display: block;
         }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+        .tab-globe-icon {
+            display: block;
         }
 
-        .viewport {
-            flex: 1;
-            min-height: 0;
+        .tab-globe-icon[hidden] {
+            display: none;
         }
     </style>
 </head>
 
-<body>
+<body theme="default">
     <div class="container">
         <div class="tabs" id="tabs" role="tablist">
-            <button class="new-tab" id="newTab" title="New tab" type="button">+</button>
+            <button class="new-tab" id="newTab" title="new tab" type="button" aria-label="new tab">
+                <i data-lucide="plus" class="lucide-icon"></i>
+            </button>
         </div>
+
         <div class="toolbar">
             <div class="nav-buttons">
-                <button id="backBtn" title="Back">←</button>
-                <button id="forwardBtn" title="Forward">→</button>
-                <button id="reloadBtn" title="Reload">↻</button>
+                <button id="backBtn" title="Back" type="button" aria-label="back">
+                    <i data-lucide="arrow-left" class="lucide-icon"></i>
+                </button>
+
+                <button id="forwardBtn" title="Forward" type="button" aria-label="forward">
+                    <i data-lucide="arrow-right" class="lucide-icon"></i>
+                </button>
+
+                <button id="reloadBtn" title="Reload" type="button" aria-label="reload">
+                    <i data-lucide="rotate-cw" class="lucide-icon"></i>
+                </button>
             </div>
-            <input type="text" id="urlInput" placeholder="Enter URL..." value="https://example.com">
-            <button id="goBtn">Go</button>
-            <div class="status" id="status">Ready</div>
+
+            <input type="text" id="urlInput" onfocus="this.select()" placeholder="enter something.." autocomplete="off">
+
+            <button id="goBtn" type="button" aria-label="bookmarks">
+                <i data-lucide="search" class="lucide-icon"></i>
+            </button>
         </div>
+
         <div class="viewport" id="viewport"></div>
     </div>
-    <!--
-        STEP 1: Load the libraries. Keep these as plain <script> tags. Do not turn
-        them into type="module" / imports. They put their API on the global object
-        (window.$scramjet, window.$scramjetController, window.EpoxyTransport), and
-        that only happens in a classic script.
 
-        scramjet/ and controller/ need to live at your site root. The service worker
-        loads scramjet.js and scramjet.wasm from /scramjet/ and the inject script
-        from /controller/, so keep those paths unless you also change the controller
-        config.
-    -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="/scramjet/scramjet.js"></script>
     <script src="/controller/controller.api.js"></script>
-    <!-- Epoxy is the network transport. Drop in a local copy if you don't want the CDN. -->
     <script src="https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@3.0.1/dist/index.js"></script>
 
     <script type="module">
         import {
             installLucideWispEncryption,
-            LUCIDE_WISP_URL,
+            LUCIDE_WISP_URL
         } from "/lucide-wisp.mjs";
-        // STEP 2: Pull the classes off the globals the scripts above set up.
+
         const { Controller } = $scramjetController;
         const { defaultConfig } = $scramjet;
         const EpoxyTransport = self.EpoxyTransport.default;
 
         const urlInput = document.getElementById("urlInput");
-        const statusEl = document.getElementById("status");
         const tabsEl = document.getElementById("tabs");
         const viewportEl = document.getElementById("viewport");
 
         let scramjet = null;
         let activeTabId = null;
         let nextTabId = 1;
+
         const tabs = new Map();
 
-        function setStatus(t, err = false) {
-            statusEl.textContent = t;
-            statusEl.style.color = err ? "#ff6b6b" : "#aaa";
+        function norm(value) {
+            const input = value.trim();
+
+            if (!input) return "https://search.brave.com";
+
+            if (/^https?:\/\//i.test(input)) return input;
+
+            if (/^(localhost|(\d{1,3}\.){3}\d{1,3})(:\d+)?(\/|$)/i.test(input)) {
+                return "http://" + input;
+            }
+
+            const looksLikeDomain =
+                /^(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#][^\s]*)?$/i.test(input);
+
+            if (looksLikeDomain) return "https://" + input;
+
+            return "https://search.brave.com/search?q=" +
+                encodeURIComponent(input);
         }
 
-        function norm(u) {
-            return u.startsWith("http") ? u : "https://" + u;
+        function getFaviconUrls(url) {
+            try {
+                const domain = new URL(url).hostname;
+
+                return [
+                    `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`,
+                    `https://icons.duckduckgo.com/ip3/${encodeURIComponent(domain)}.ico`
+                ];
+            } catch {
+                return [];
+            }
+        }
+
+        function setTabFavicon(tab) {
+            if (!tab?.favicon || !tab?.placeholder) return;
+
+            const version = ++tab.faviconVersion;
+
+            tab.favicon.onload = null;
+            tab.favicon.onerror = null;
+            tab.favicon.removeAttribute("src");
+            tab.favicon.classList.remove("loaded");
+            tab.favicon.hidden = true;
+            tab.favicon.style.display = "none";
+
+            if (tab.isNewTab || !tab.url) {
+                tab.placeholder.hidden = false;
+                tab.placeholder.style.display = "block";
+                return;
+            }
+
+            const faviconUrls = getFaviconUrls(tab.url);
+            let index = 0;
+
+            tab.placeholder.hidden = false;
+            tab.placeholder.style.display = "block";
+
+            function tryNextFavicon() {
+                if (version !== tab.faviconVersion || tab.isNewTab) return;
+
+                if (index >= faviconUrls.length) {
+                    tab.favicon.hidden = true;
+                    tab.favicon.style.display = "none";
+                    tab.placeholder.hidden = false;
+                    tab.placeholder.style.display = "block";
+                    return;
+                }
+
+                tab.favicon.src = faviconUrls[index++];
+            }
+
+            if (!faviconUrls.length) {
+                tab.placeholder.hidden = false;
+                tab.placeholder.style.display = "block";
+                return;
+            }
+
+            tab.favicon.onload = () => {
+                if (version !== tab.faviconVersion || tab.isNewTab) return;
+
+                tab.placeholder.hidden = true;
+                tab.placeholder.style.display = "none";
+
+                tab.favicon.hidden = false;
+                tab.favicon.style.display = "block";
+                tab.favicon.classList.add("loaded");
+            };
+
+            tab.favicon.onerror = tryNextFavicon;
+
+            tryNextFavicon();
         }
 
         function updateTabTitle(tab) {
-            let title = "New tab";
-            try {
-                title = tab.iframe.contentDocument?.title || new URL(tab.url).hostname;
-            } catch {
-                title = new URL(tab.url).hostname;
+            if (!tab) return;
+
+            if (tab.isNewTab) {
+                tab.titleElement.textContent = "new tab";
+                tab.button.title = "new tab";
+                return;
             }
 
-            tab.button.querySelector(".tab-title").textContent = title;
-            tab.iframe.title = title;
+            let title = "";
+
+            try {
+                title = tab.iframe.contentDocument?.title?.toLowerCase() || "";
+            } catch { }
+
+            if (!title) {
+                try {
+                    title = new URL(tab.url).hostname.toLowerCase();
+                } catch {
+                    title = "loading...";
+                }
+            }
+
+            tab.titleElement.textContent = title;
+            tab.button.title = title;
+        }
+
+        function syncAddressBar(tab) {
+            if (!tab || activeTabId !== tab.id) return;
+
+            urlInput.value = tab.isNewTab ? "" : tab.url;
+        }
+
+        function clearTabTimer(tab) {
+            if (!tab) return;
+
+            clearTimeout(tab.navigationTimer);
+            tab.navigationTimer = null;
+        }
+
+        function startNavigationFallback(tab) {
+            clearTabTimer(tab);
+
+            tab.navigationTimer = setTimeout(() => {
+                if (!tabs.has(tab.id)) return;
+
+                syncAddressBar(tab);
+                updateTabTitle(tab);
+                setTabFavicon(tab);
+            }, 10000);
         }
 
         function selectTab(id) {
             const tab = tabs.get(id);
+
             if (!tab) return;
 
             activeTabId = id;
+
             for (const item of tabs.values()) {
-                item.button.classList.toggle("active", item.id === id);
-                item.iframe.classList.toggle("active", item.id === id);
+                const active = item.id === id;
+
+                item.button.classList.toggle("active", active);
+                item.button.setAttribute("aria-selected", String(active));
+                item.iframe.classList.toggle("active", active);
+                item.page.hidden = !active || !item.isNewTab;
             }
-            urlInput.value = tab.url;
+
+            syncAddressBar(tab);
+
+            if (tab.isNewTab) {
+                requestAnimationFrame(() => {
+                    if (activeTabId === id && tab.isNewTab) {
+                        tab.searchInput.focus();
+                    }
+                });
+            }
         }
 
         function closeTab(id) {
             const tab = tabs.get(id);
+
             if (!tab) return;
+
+            clearTabTimer(tab);
+            tab.faviconVersion++;
 
             tab.button.remove();
             tab.iframe.remove();
+            tab.page.remove();
+
             tabs.delete(id);
 
-            if (tabs.size === 0) {
-                createTab();
-            } else if (activeTabId === id) {
-                selectTab(tabs.keys().next().value);
+            if (activeTabId === id) {
+                activeTabId = null;
+
+                const remaining = [...tabs.keys()];
+
+                if (remaining.length) {
+                    selectTab(remaining[remaining.length - 1]);
+                } else {
+                    createTab();
+                }
             }
         }
+        function decodeScramjetUrl(proxyUrl) {
+            try {
+                const parsed = new URL(proxyUrl);
+                const marker = "/~/sj/";
+                const markerIndex = parsed.pathname.indexOf(marker);
 
-        function createTab(url = "https://google.com", title = "New tab") {
+                if (markerIndex === -1) return null;
+
+                const remainder = parsed.pathname.slice(markerIndex + marker.length);
+                const parts = remainder.split("/");
+
+                if (parts.length < 3) return null;
+
+                const encodedDestination = parts.slice(2).join("/");
+                const destination = decodeURIComponent(encodedDestination);
+
+                if (!/^https?:\/\//i.test(destination)) return null;
+
+                return destination;
+            } catch {
+                return null;
+            }
+        }
+        function createTab() {
             const id = nextTabId++;
-            const button = document.createElement("div");
+
+            const button = document.createElement("button");
             button.className = "tab";
+            button.type = "button";
             button.setAttribute("role", "tab");
-            button.innerHTML = '<span class="tab-title"></span><button class="tab-close" title="Close tab" type="button">&times;</button>';
-            button.querySelector(".tab-title").textContent = title;
-            button.addEventListener("click", () => selectTab(id));
-            button.querySelector(".tab-close").addEventListener("click", (event) => {
+            button.setAttribute("aria-selected", "false");
+
+            const placeholder = document.createElement("img");
+            placeholder.className = "tab-placeholder";
+            placeholder.src = "/assets/img/globe.png";
+            placeholder.alt = "";
+            placeholder.draggable = false;
+
+            const favicon = document.createElement("img");
+            favicon.className = "tab-favicon";
+            favicon.alt = "";
+            favicon.hidden = true;
+            favicon.draggable = false;
+
+            const titleElement = document.createElement("span");
+            titleElement.className = "tab-title";
+            titleElement.textContent = "new tab";
+
+            const closeButton = document.createElement("span");
+            closeButton.className = "tab-close";
+            closeButton.title = "Close tab";
+            closeButton.setAttribute("role", "button");
+            closeButton.setAttribute("aria-label", "close");
+            closeButton.innerHTML = '<i data-lucide="x"></i>';
+
+            button.append(
+                placeholder,
+                favicon,
+                titleElement,
+                closeButton
+            );
+
+            button.addEventListener("click", event => {
+                if (!event.target.closest(".tab-close")) {
+                    selectTab(id);
+                }
+            });
+
+            closeButton.addEventListener("click", event => {
                 event.stopPropagation();
                 closeTab(id);
             });
 
             const iframe = document.createElement("iframe");
-            iframe.title = title;
-            tabsEl.insertBefore(button, document.getElementById("newTab"));
-            viewportEl.appendChild(iframe);
+            iframe.title = "new tab";
 
-            const tab = { id, button, iframe, frame: null, url };
+            const page = document.createElement("div");
+            page.className = "newtab-page";
+
+            const heading = document.createElement("h1");
+            heading.className = "newtab-title";
+            heading.textContent = "celestial.";
+
+            const form = document.createElement("form");
+            form.className = "newtab-search";
+
+            const searchInput = document.createElement("input");
+            searchInput.type = "text";
+            searchInput.placeholder = "search or enter a URL";
+            searchInput.autocomplete = "off";
+            searchInput.spellcheck = false;
+            searchInput.setAttribute("aria-label", "search or enter a URL");
+
+            const searchButton = document.createElement("button");
+            searchButton.type = "submit";
+            searchButton.setAttribute("aria-label", "search");
+            searchButton.innerHTML = '<i data-lucide="search"></i>';
+
+            form.append(searchInput, searchButton);
+            page.append(heading, form);
+
+            const tab = {
+                id,
+                button,
+                iframe,
+                page,
+                placeholder,
+                favicon,
+                titleElement,
+                searchInput,
+                frame: null,
+                url: "",
+                isNewTab: true,
+                navigationTimer: null,
+                faviconVersion: 0
+            };
+
+            form.addEventListener("submit", event => {
+                event.preventDefault();
+                navigateTab(tab, searchInput.value);
+            });
+
+            tabsEl.insertBefore(
+                button,
+                document.getElementById("newTab")
+            );
+
+            viewportEl.append(iframe, page);
             tabs.set(id, tab);
-            iframe.addEventListener("load", () => updateTabTitle(tab));
-            selectTab(id);
-            tab.frame = scramjet.createFrame(iframe);
-            tab.frame.go(url);
+
+            iframe.addEventListener("load", () => {
+                clearTabTimer(tab);
+
+                if (!tabs.has(tab.id)) return;
+
+                try {
+                    const proxyUrl = tab.iframe.contentWindow.location.href;
+                    const decodedUrl = decodeScramjetUrl(proxyUrl);
+
+                    if (decodedUrl) {
+                        tab.url = decodedUrl;
+                        tab.isNewTab = false;
+                    }
+                } catch { }
+
+                updateTabTitle(tab);
+                setTabFavicon(tab);
+                syncAddressBar(tab);
+            });
+
+            if (window.lucide) {
+                window.lucide.createIcons({ root: button });
+                window.lucide.createIcons({ root: page });
+            }
+
+            setTabFavicon(tab);
             updateTabTitle(tab);
+            selectTab(id);
+
+            return tab;
         }
+
+        async function navigateTab(tab, value) {
+            if (!tab || !value.trim() || !scramjet) return;
+
+            const url = norm(value);
+
+            clearTabTimer(tab);
+
+            tab.url = url;
+            tab.isNewTab = false;
+            tab.page.hidden = true;
+
+            updateTabTitle(tab);
+            setTabFavicon(tab);
+            syncAddressBar(tab);
+
+            try {
+                if (!tab.frame) {
+                    tab.frame = scramjet.createFrame(tab.iframe);
+                }
+
+                tab.frame.go(url);
+                startNavigationFallback(tab);
+            } catch (error) {
+                console.error("Navigation failed:", error);
+                syncAddressBar(tab);
+            }
+        }
+
+        function go() {
+            const tab = tabs.get(activeTabId);
+
+            if (tab) {
+                navigateTab(tab, urlInput.value);
+            }
+        }
+
+        document.getElementById("goBtn").addEventListener("click", go);
+
+        document.getElementById("newTab").addEventListener("click", createTab);
+
+        urlInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                go();
+            }
+        });
+
+        document.getElementById("backBtn").addEventListener("click", () => {
+            const tab = tabs.get(activeTabId);
+
+            if (!tab?.frame?.back) return;
+
+            clearTabTimer(tab);
+            tab.frame.back();
+            startNavigationFallback(tab);
+        });
+
+        document.getElementById("forwardBtn").addEventListener("click", () => {
+            const tab = tabs.get(activeTabId);
+
+            if (!tab?.frame?.forward) return;
+
+            clearTabTimer(tab);
+            tab.frame.forward();
+            startNavigationFallback(tab);
+        });
+
+        document.getElementById("reloadBtn").addEventListener("click", () => {
+            const tab = tabs.get(activeTabId);
+
+            if (!tab) return;
+
+            clearTabTimer(tab);
+
+            if (tab.isNewTab) {
+                tab.searchInput.focus();
+                return;
+            }
+
+            try {
+                if (tab.frame?.reload) {
+                    tab.frame.reload();
+                    startNavigationFallback(tab);
+                } else {
+                    navigateTab(tab, tab.url);
+                }
+            } catch (error) {
+                console.error("Reload failed:", error);
+                syncAddressBar(tab);
+            }
+        });
 
         async function init() {
             try {
-                setStatus("Initializing...");
-
-                // Wait for the service worker (registered at the bottom) to be active.
                 await navigator.serviceWorker.ready;
 
                 const serviceworker =
                     navigator.serviceWorker.controller ??
                     (await navigator.serviceWorker.ready).active;
 
-                // STEP 3: Wrap Lucide Wisp sockets, then connect Epoxy.
-                // LUCIDE_WISP_URL is wss://lucideon.top/fairs/ (filtered).
-                // Switch the export in lucide-wisp.mjs to LUCIDE_WISP_UNFILTERED
-                // for wss://lucideon.top/piers/.
                 installLucideWispEncryption();
+
                 const transport = new EpoxyTransport({
                     wisp: LUCIDE_WISP_URL
                 });
 
                 await transport.init();
 
-                // STEP 4: Create the controller. defaultConfig is fine to start with;
-                // change it if you need custom rewriting behaviour.
                 scramjet = new Controller({
                     serviceworker,
                     transport,
@@ -313,42 +664,27 @@
 
                 await scramjet.wait();
 
-                // STEP 5: Create the initial browser tab.
                 createTab();
-
-                setStatus("Ready");
-            } catch (e) {
-                console.error(e);
-                setStatus(e.message, true);
+            } catch (error) {
+                console.error("Celestial initialization failed:", error);
             }
         }
 
-        // Navigate the iframe to whatever is typed in the URL bar.
-        function go() {
-            const url = norm(urlInput.value);
-            urlInput.value = url;
-            const tab = tabs.get(activeTabId);
-            if (!tab) return;
-            tab.url = url;
-            tab.frame.go(url);
-            updateTabTitle(tab);
+        if (window.lucide) {
+            window.lucide.createIcons();
         }
 
-        document.getElementById("goBtn").onclick = go;
-        document.getElementById("newTab").onclick = () => createTab();
-
-        urlInput.addEventListener("keydown", e => {
-            if (e.key === "Enter") go();
-        });
-
-        // STEP 6: Register the service worker, then boot once it's ready.
-        // Service workers only run in a secure context: https:// or http://localhost.
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/sw.js").then(init);
+            navigator.serviceWorker.register("/sw.js")
+                .then(init)
+                .catch(error => {
+                    console.error("Service worker registration failed:", error);
+                });
         } else {
-            setStatus("No service worker support", true);
+            console.error("Service workers are not supported.");
         }
     </script>
+    <script src="/assets/js/theme.js"></script>
 </body>
 
 </html>

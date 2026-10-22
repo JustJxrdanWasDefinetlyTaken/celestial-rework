@@ -2,7 +2,7 @@ import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
-import { scramjetPath } from "@mercuryworkshop/scramjet/path";
+import { scrapeListing } from "myinstants-scraper";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createReadStream } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
@@ -239,7 +239,25 @@ const server = createServer(async (req, res) => {
     if (await tryStaticPrefix(req, res, "/mux/", baremuxPath, path)) return;
     if (await tryStaticPrefix(req, res, "/epoxy/", epoxyPath, path)) return;
     if (await tryStaticPrefix(req, res, "/curl/", libcurlPath, path)) return;
+    if (await tryStaticPrefix(req, res, "/scramjet-standalone/", scramjetPath, path)) return;
     if (await tryStaticPrefix(req, res, "/scram/", scramjetPath, path)) return;
+
+    if (path === "/api/search" && req.method === "GET") {
+  const host = req.headers.host ?? "localhost:5439";
+  const request = new Request(`http://${host}${req.url ?? "/api/search"}`);
+
+  const response = await handleMyInstantsSearch(request);
+
+  res.statusCode = response.status;
+
+  response.headers.forEach((value, key) => {
+    res.setHeader(key, value);
+  });
+
+  res.end(await response.text());
+  return;
+}
+
 
     if (path === "/api/chat") return handleChat(req, res);
 

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>celestial.</title>
+
+  <style>
+    @import url('/assets/css/theme.css');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--background, #08090c);
+      color: var(--color, white);
+      min-height: 100vh;
+    }
+
+    #proxyFrame {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: none;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--background, #08090c);
+    }
+
+    #proxyFrame.active {
+      display: block;
+    }
+
+    .navigation-status {
+      position: fixed;
+      z-index: 2;
+      right: 16px;
+      bottom: 16px;
+      max-width: calc(100vw - 32px);
+      padding: 8px 12px;
+      border: 1px solid var(--border, rgba(255,255,255,.3));
+      border-radius: 10px;
+      background: var(--input, rgba(8,9,12,.9));
+      color: var(--color, white);
+      font-size: 13px;
+    }
+
+    .navigation-status:empty {
+      display: none;
+    }
+
+    .navigation-status[data-error="true"] {
+      color: #ff8a8a;
+    }
+
+    .new-tab-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      transform: translateY(-4vh);
+    }
+
+    h1 {
+      font-size: clamp(44px, 8vw, 68px);
+      font-weight: 650;
+      letter-spacing: -0.075em;
+      line-height: 1;
+    }
+
+    h1 span {
+      color: #8c8c98;
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 60px;
+      padding: 7px 9px 7px 20px;
+      border: 1px solid var(--border, rgba(255,255,255,.3));
+      border-radius: 16px;
+      background: var(--input, rgba(255,255,255,.02));
+      transition: border-color .2s, background .2s;
+    }
+
+    .search-form:focus-within {
+      border-color: rgba(255,255,255,.55);
+      background: var(--pallet-hover, rgba(255,255,255,.06));
+    }
+
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: #8c8c98;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 0;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--color, white);
+      font: inherit;
+      font-size: 16px;
+    }
+
+    .search-input::placeholder {
+      color: #777782;
+    }
+
+    .search-button {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      flex-shrink: 0;
+      border: 0;
+      border-radius: 11px;
+      background: var(--button, #222);
+      color: var(--color, white);
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+
+    .search-button:hover {
+      background: var(--pallet, #3a3a3a);
+    }
+
+    .search-button:active {
+      transform: scale(.96);
+    }
+
+    .search-button svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .hint {
+      margin-top: -12px;
+      color: #686873;
+      font-size: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .content {
+        gap: 24px;
+      }
+
+      .search-form {
+        min-height: 56px;
+        padding-left: 15px;
+      }
+
+      .search-button {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body theme="default">
+  <main class="new-tab-page" id="newTabPage">
+    <section class="content" aria-label="Celestial search">
+      <h1>celestial<span>.</span></h1>
+
+      <form class="search-form" id="searchForm" role="search">
+        <svg class="search-icon" viewBox="0 0 24 24"
+             fill="none" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8"
+                  stroke="currentColor" stroke-width="1.7"/>
+          <path d="m16 16 4.4 4.4"
+                stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round"/>
+        </svg>
+
+        <input
+          class="search-input"
+          id="searchInput"
+          type="text"
+          placeholder="Search the web or enter a URL..."
+          aria-label="Search the web or enter a URL"
+          autocomplete="off"
+          autofocus
+        >
+
+        <button class="search-button" type="submit" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+
+      <p class="hint" id="navigationStatus" role="status" aria-live="polite">
+        Press Enter to search
+      </p>
+    </section>
+  </main>
+
+  <!-- Scramjet's browsing surface: keep this iframe -->
+  <iframe id="proxyFrame" title="Proxied page"></iframe>
+
+  <p class="navigation-status" id="proxyStatus"
+     role="status" aria-live="polite"></p>
+
+  <script src="/scramjet/scramjet.js"></script>
+  <script src="/controller/controller.api.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@3.0.1/dist/index.js"></script>
+
+  <script type="module">
+    import {
+      installLucideWispEncryption,
+      LUCIDE_WISP_URL
+    } from "/lucide-wisp.mjs";
+
+    const { Controller } = $scramjetController;
+    const { defaultConfig } = $scramjet;
+    const EpoxyTransport = self.EpoxyTransport.default;
+
+    const form = document.getElementById("searchForm");
+    const input = document.getElementById("searchInput");
+    const landingPage = document.getElementById("newTabPage");
+    const searchStatus = document.getElementById("navigationStatus");
+    const proxyFrame = document.getElementById("proxyFrame");
+    const proxyStatus = document.getElementById("proxyStatus");
+
+    let scramjet = null;
+    let frame = null;
+    let pendingUrl = null;
+
+    function setStatus(message, isError = false) {
+      proxyStatus.textContent = message;
+      proxyStatus.dataset.error = String(isError);
+    }
+
+    function getDestination(value) {
+      const query = value.trim();
+
+      if (!query) return null;
+
+      const isUrl =
+        /^(https?:\/\/|localhost(?::\d+)?(?:\/|$)|[\w-]+(?:\.[\w-]+)+(?:[/:?#][^\s]*)?$)/i.test(query)
+        && !/\s/.test(query);
+
+      if (isUrl) {
+        return /^https?:\/\//i.test(query)
+          ? query
+          : `https://${query}`;
+      }
+
+      return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    function navigate(url) {
+      pendingUrl = url;
+
+      if (!scramjet) {
+        searchStatus.textContent = "Starting secure browser...";
+        setStatus("Starting Scramjet...");
+        return;
+      }
+
+      try {
+        if (!frame) {
+          frame = scramjet.createFrame(proxyFrame);
+        }
+
+        // Load the requested URL through Scramjet.
+        frame.go(url);
+
+        proxyFrame.classList.add("active");
+        landingPage.hidden = true;
+
+        searchStatus.textContent = "";
+        setStatus("");
+      } catch (error) {
+        console.error("Scramjet navigation failed:", error);
+        setStatus("Could not open that page. Please try again.", true);
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const destination = getDestination(input.value);
+
+      if (destination) {
+        navigate(destination);
+      }
+    });
+
+    window.addEventListener("load", () => {
+      input.focus({ preventScroll: true });
+    });
+
+    const autofill = new URLSearchParams(
+      window.location.search
+    ).get("autofill");
+
+    if (autofill) {
+      input.value = autofill;
+    }
+
+    async function initializeScramjet() {
+      if (!("serviceWorker" in navigator)) {
+        throw new Error("This browser does not support service workers.");
+      }
+
+      await navigator.serviceWorker.register("/sw.js");
+
+      const registration = await navigator.serviceWorker.ready;
+      const serviceworker =
+        navigator.serviceWorker.controller ?? registration.active;
+
+      if (!serviceworker) {
+        throw new Error("Scramjet service worker is unavailable.");
+      }
+
+      installLucideWispEncryption();
+
+      const transport = new EpoxyTransport({
+        wisp: LUCIDE_WISP_URL
+      });
+
+      await transport.init();
+
+      scramjet = new Controller({
+        serviceworker,
+        transport,
+        scramjetConfig: defaultConfig
+      });
+
+      await scramjet.wait();
+
+      setStatus("");
+
+      if (pendingUrl) {
+        navigate(pendingUrl);
+      }
+    }
+
+    initializeScramjet().catch((error) => {
+      console.error("Scramjet initialization failed:", error);
+      setStatus(error?.message || "Scramjet initialization failed.", true);
+    });
+  </script>
+</body>
+</html>

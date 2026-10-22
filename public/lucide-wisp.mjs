@@ -9,9 +9,9 @@ export const IV_LENGTH = 12;
 export const TAG_LENGTH = 16;
 
 /** Filtered (ad-blocking) Lucide Wisp pool. */
-export const LUCIDE_WISP_FILTERED = "wss://celestial.press/wisp/";
+export const LUCIDE_WISP_FILTERED = "wss://anura.pro";
 /** Unfiltered Lucide Wisp pool. */
-export const LUCIDE_WISP_UNFILTERED = "wss://celestial.press/wisp/";
+export const LUCIDE_WISP_UNFILTERED = "wss://anura.pro";
 /** Active Wisp endpoint. Swap to LUCIDE_WISP_UNFILTERED for /piers/. */
 export const LUCIDE_WISP_URL = LUCIDE_WISP_FILTERED;
 
