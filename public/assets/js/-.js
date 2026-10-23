@@ -9,7 +9,6 @@ const assetCDN = vbn;
 
 const GAME_JSON_URL = "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/-.json";
 const JSON_FALLBACKS = [
-  "https://rawcdn.githack.com/celestialdevsalot/gassets/main/-.json",
   "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/-.json",
   "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/-.json",
   "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/-.json",
