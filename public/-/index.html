@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>games</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     * { box-sizing: border-box; }
 
@@ -91,9 +92,9 @@
 
     #games {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      padding: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 16px;
     }
 
     .game {
@@ -124,10 +125,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 38px 12px 12px;
+      padding: 12px;
+      margin: 0;
       background: rgba(8, 9, 12, .28);
       color: var(--color);
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 650;
       text-align: center;
       opacity: 0;
@@ -165,22 +167,24 @@
       top: 7px;
       right: 7px;
       display: grid;
-      width: 31px;
-      height: 31px;
+      width: 34px;
+      height: 34px;
       place-items: center;
       border: 1px solid var(--border);
-      border-radius: 7px;
-      background: rgba(8, 9, 12, .75);
+      border-radius: 8px;
+      background: rgba(8, 9, 12, .8);
       color: white;
-      font-size: 19px;
-      line-height: 1;
       cursor: pointer;
       opacity: 0;
-      transition: opacity .15s;
+      transition: opacity .15s, background .15s;
     }
 
     .game:hover .bookmark, .game:focus-within .bookmark, .bookmark.saved { opacity: 1; }
     .bookmark.saved { background: var(--button); }
+    .bookmark svg { width: 18px; height: 18px; stroke-width: 1.8; }
+    .bookmark.saved svg { fill: currentColor; }
+    .filter { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+    .filter svg { width: 16px; height: 16px; stroke-width: 1.8; }
     .game:focus-visible { outline: 2px solid var(--color); outline-offset: 2px; }
 
     .empty {
@@ -190,8 +194,14 @@
       opacity: .65;
     }
 
-    @media (max-width: 500px) {
-      #games { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 9px; }
+    @media (max-width: 700px) {
+      #games { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 12px; }
+      .name { font-size: 16px; }
+    }
+
+    @media (max-width: 450px) {
+      #games { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 9px; padding: 10px; }
+      .name { font-size: 14px; }
     }
 
     @media (hover: none) {
@@ -202,6 +212,75 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition: none !important; }
     }
+
+
+    #game-player {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      flex-direction: column;
+      background: var(--background);
+    }
+
+    #game-player.open {
+      display: flex;
+    }
+
+    #game-player-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 48px;
+      padding: 7px 10px 7px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    #game-player-title {
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #game-player-close {
+      display: grid;
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--button);
+      color: var(--color);
+      cursor: pointer;
+    }
+
+    #game-player-close:hover {
+      background: var(--pallet-hover);
+    }
+
+    #game-player-close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    #game-frame {
+      display: block;
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      border: 0;
+      background: #000;
+    }
+
+    body.game-playing {
+      overflow: hidden;
+    }
+
   </style>
 </head>
 <body theme="default">
@@ -211,31 +290,35 @@
 
   <div id="filters" aria-label="game views">
     <button class="filter active" data-view="all" type="button">all games</button>
-    <button class="filter" data-view="bookmarks" type="button">★ bookmarks</button>
+    <button class="filter" data-view="bookmarks" type="button"><i data-lucide="star"></i> bookmarks</button>
   </div>
   <div id="categories" aria-label="filter by category"></div>
   <div id="status">loading games...</div>
   <div id="games"></div>
 
+  <div id="game-player" aria-hidden="true">
+    <div id="game-player-bar">
+      <div id="game-player-title"></div>
+      <button id="game-player-close" type="button" aria-label="close game" title="close game"><i data-lucide="x"></i></button>
+    </div>
+    <iframe id="game-frame" title="game" allow="autoplay; fullscreen; gamepad; clipboard-read; clipboard-write" allowfullscreen></iframe>
+  </div>
+
   <script>
     "use strict";
 
-    // Main catalog plus a raw GitHub mirror and four configurable fallback placeholders.
-    const GAME_JSON_URL = "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/-.json";
+    const GAME_JSON_URL = "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/-.json";
     const JSON_FALLBACKS = [
+      "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/-.json",
       "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/-.json",
-      "https://CDN-2-PLACEHOLDER.example/-.json",
-      "https://CDN-3-PLACEHOLDER.example/-.json",
-      "https://CDN-4-PLACEHOLDER.example/-.json",
-      "https://CDN-5-PLACEHOLDER.example/-.json"
+      "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/-.json"
     ];
 
-    // Replace these four with your actual asset CDN base URLs.
     const ASSET_CDNS = [
-      "https://CDN-2-PLACEHOLDER.example/",
-      "https://CDN-3-PLACEHOLDER.example/",
-      "https://CDN-4-PLACEHOLDER.example/",
-      "https://CDN-5-PLACEHOLDER.example/"
+      "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/",
+      "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/",
+      "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/",
+      "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/"
     ];
 
     const gamesEl = document.getElementById("games");
@@ -297,10 +380,8 @@
       const candidates = [];
 
       if (isLocal) {
-        // local paths are served from the website hosting this page
         try { candidates.push(new URL("/" + relative, location.origin).href); } catch {}
       } else {
-        // Preserve the repository path for relative files in the JSON repository.
         if (sourceURL) {
           try {
             const base = new URL("./", sourceURL);
@@ -354,23 +435,50 @@
       }).filter(Boolean);
     }
 
+    const gamePlayer = document.getElementById("game-player");
+    const gamePlayerTitle = document.getElementById("game-player-title");
+    const gameFrame = document.getElementById("game-frame");
+    const gamePlayerClose = document.getElementById("game-player-close");
+
+    function closeGame() {
+      gamePlayer.classList.remove("open");
+      gamePlayer.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("game-playing");
+      gameFrame.src = "about:blank";
+    }
+
     function openGame(game) {
+      const url = game.urlCandidates?.[0] || game.url;
+
+      if (game.source.toLowerCase() === "local") {
+        if (!url) {
+          alert("this game does not have a playable url.");
+          return;
+        }
+
+        gamePlayerTitle.textContent = game.name;
+        gameFrame.src = url;
+        gamePlayer.classList.add("open");
+        gamePlayer.setAttribute("aria-hidden", "false");
+        document.body.classList.add("game-playing");
+
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
       if (game.func) {
-        // Safely support the catalog's sendRequest('https://example.com'); pattern without eval().
         const match = game.func.match(/^\s*sendRequest\s*\(\s*(['"])(.*?)\1\s*\)\s*;?\s*$/s);
 
         if (match) {
           if (typeof window.sendRequest === "function") {
             window.sendRequest(match[2]);
           } else {
-            console.warn("this game requires the site's sendRequest(url) function.");
             alert("the proxy request function (sendRequest) is not available on this page.");
           }
           return;
         }
       }
 
-      const url = game.urlCandidates?.[0] || game.url;
       if (!url) {
         alert("this game does not have a playable url.");
         return;
@@ -379,6 +487,14 @@
       const tab = window.open(url, "_blank", "noopener,noreferrer");
       if (!tab) window.location.href = url;
     }
+
+    gamePlayerClose.addEventListener("click", closeGame);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && gamePlayer.classList.contains("open")) {
+        closeGame();
+      }
+    });
 
     function makeCard(game) {
       const card = document.createElement("div");
@@ -422,7 +538,7 @@
       const save = document.createElement("button");
       save.type = "button";
       save.className = "bookmark" + (bookmarks.has(game.id) ? " saved" : "");
-      save.textContent = bookmarks.has(game.id) ? "★" : "☆";
+      save.innerHTML = '<i data-lucide="star"></i>';
       save.title = bookmarks.has(game.id) ? "remove bookmark" : "bookmark game";
       save.setAttribute("aria-label", save.title);
       save.addEventListener("click", event => {
@@ -499,6 +615,7 @@
       }
 
       gamesEl.replaceChildren(fragment);
+      if (window.lucide) window.lucide.createIcons();
       statusEl.textContent = `${visible.length} ${visible.length === 1 ? "game" : "games"}${currentView === "bookmarks" ? " bookmarked" : ""}`;
     }
 
@@ -525,14 +642,19 @@
       let lastError;
 
       for (const source of sources) {
-        // Skip obvious placeholder endpoints until they are replaced with real URLs.
-        if (source.includes(".example/")) continue;
-
         try {
           const response = await fetch(source, { cache: "no-store" });
           if (!response.ok) throw new Error(`http ${response.status}`);
 
-          const data = await response.json();
+          const text = await response.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (error) {
+            const trimmed = text.trim();
+            const body = trimmed.replace(/^\s*\[/, "").replace(/\]\s*$/, "");
+            data = JSON.parse("[" + body + "]");
+          }
           const loaded = normalizeGames(data, source);
           if (!loaded.length) throw new Error("no usable games found in this catalog.");
 
@@ -551,6 +673,7 @@
       console.error("all game catalog sources failed", lastError);
     }
 
+    if (window.lucide) window.lucide.createIcons();
     loadGames();
   </script>
 </body>
