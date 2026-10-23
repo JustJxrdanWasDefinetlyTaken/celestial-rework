@@ -413,7 +413,7 @@
         const source = firstValue(item, ["source"]);
         const isLocal = source.toLowerCase() === "local";
         const urlCandidates = resolveCandidates(rawURL, sourceURL, isLocal);
-        const imgCandidates = resolveCandidates(rawImage, sourceURL, isLocal);
+        const imgCandidates = resolveCandidates(rawImage, sourceURL, false);
         const name = firstValue(item, ["name", "title"]) || `game ${index + 1}`;
         const type = firstValue(item, ["type"]);
         const categories = Array.isArray(item.categories)
