@@ -12,10 +12,14 @@ const JSON_FALLBACKS = [
   "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/-.json",
   "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/-.json",
   "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/-.json",
+  "https://rawcdn.githack.com/celestialdevsalot/gassets/main/-.json",
+  "https://raw.githack.com/celestialdevsalot/gassets/main/-.json",
   assetCDN + "-.json"
 ];
 
 const ASSET_CDNS = [
+  "https://rawcdn.githack.com/celestialdevsalot/gassets/main/",
+  "https://raw.githack.com/celestialdevsalot/gassets/main/",
   "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/",
   "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/",
   "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/",
@@ -72,6 +76,7 @@ function firstValue(object, keys) {
 
 function resolveCandidates(value, sourceURL, isLocal) {
   if (!value) return [];
+
   const raw = String(value).trim();
 
   if (/^(https?:)?\/\//i.test(raw) || /^(data:|blob:)/i.test(raw)) {
@@ -111,6 +116,7 @@ function normalizeGames(data, sourceURL) {
     const rawURL = firstValue(item, ["url", "path", "file", "html", "href"]);
     const func = firstValue(item, ["func"]);
     const rawImage = firstValue(item, ["img", "image", "thumbnail", "icon", "cover"]);
+
     if (!rawURL && !func) return null;
 
     const source = firstValue(item, ["source"]);
@@ -128,7 +134,12 @@ function normalizeGames(data, sourceURL) {
     seen.add(id);
 
     return {
-      id, name, type, categories, source, func,
+      id,
+      name,
+      type,
+      categories,
+      source,
+      func,
       url: urlCandidates[0] || "",
       urlCandidates,
       img: imgCandidates[0] || "",
@@ -137,6 +148,39 @@ function normalizeGames(data, sourceURL) {
     };
   }).filter(Boolean);
 }
+
+function normalizeGoUrl(value) {
+  const input = String(value ?? "").trim();
+
+  if (!input) return "";
+
+  if (/^https?:\/\//i.test(input)) return input;
+
+  if (/^(localhost|(\d{1,3}\.){3}\d{1,3})(:\d+)?([/?#]|$)/i.test(input)) {
+    return "http://" + input;
+  }
+
+  if (/^(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#][^\s]*)?$/i.test(input)) {
+    return "https://" + input;
+  }
+
+  return "https://search.brave.com/search?q=" + encodeURIComponent(input);
+}
+
+window.goUrl = function (url) {
+  const destination = normalizeGoUrl(url);
+
+  if (!destination) return;
+
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type: "celestial:goUrl",
+      url: destination
+    }, "*");
+  } else {
+    window.location.href = destination;
+  }
+};
 
 const gamePlayer = document.getElementById("game-player");
 const gamePlayerTitle = document.getElementById("game-player-title");
@@ -147,7 +191,9 @@ function closeGame() {
   gamePlayer.classList.remove("open");
   gamePlayer.setAttribute("aria-hidden", "true");
   document.body.classList.remove("game-playing");
+  gameFrame.removeAttribute("srcdoc");
   gameFrame.src = "about:blank";
+  gamePlayerTitle.textContent = "";
 }
 
 async function fetchGameHTML(candidates, baseOverride = "") {
@@ -174,6 +220,7 @@ async function fetchGameHTML(candidates, baseOverride = "") {
 
         if (embeddedPath && !/^(javascript:|data:|blob:|about:|#)/i.test(embeddedPath)) {
           const next = new URL(embeddedPath, url).href;
+
           if (next !== url) {
             url = next;
             continue;
@@ -181,7 +228,7 @@ async function fetchGameHTML(candidates, baseOverride = "") {
         }
 
         const directory = new URL("./", url).href;
-        const fallbackBase = '<base href="' + directory.replace(/&/g, "&amp;").replace(/\"/g, "&quot;") + '">';
+        const fallbackBase = '<base href="' + directory.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '">';
         let prepared = html;
 
         if (/<head\b[^>]*>/i.test(prepared)) {
@@ -207,6 +254,31 @@ async function fetchGameHTML(candidates, baseOverride = "") {
 async function openGame(game) {
   const url = game.urlCandidates?.[0] || game.url;
 
+  if (game.func) {
+    const match = game.func.match(
+      /^\s*(goUrl|sendRequest)\s*\(\s*(?:(['"])(.*?)\2|([^)]*))\s*\)\s*;?\s*$/s
+    );
+
+    if (match) {
+      const functionName = match[1];
+      const argument = (match[3] ?? match[4] ?? "").trim();
+
+      if (functionName === "goUrl") {
+        if (typeof window.goUrl === "function") {
+          window.goUrl(argument);
+        } else {
+          alert("The goUrl function is not available.");
+        }
+      } else if (typeof window.sendRequest === "function") {
+        window.sendRequest(argument);
+      } else {
+        alert("The sendRequest function is not available.");
+      }
+
+      return;
+    }
+  }
+
   if (game.source.toLowerCase() === "local") {
     if (!game.urlCandidates?.length && !url) {
       alert("this book does not have a playable url.");
@@ -218,33 +290,24 @@ async function openGame(game) {
     gamePlayer.setAttribute("aria-hidden", "false");
     document.body.classList.add("game-playing");
     gameFrame.srcdoc = '<!doctype html><html><body style="margin:0;background:#08090c;color:white;font-family:system-ui;display:grid;place-items:center;height:100vh">Loading book...</body></html>';
+
     if (window.lucide) window.lucide.createIcons();
 
     try {
       const result = await fetchGameHTML(
-        game.urlCandidates?.length ? game.urlCandidates : [url],
-        "https://cdn.jsdelivr.net/gh/technonyte00/deltarune@main/"
+        game.urlCandidates?.length ? game.urlCandidates : [url]
       );
-      if (gamePlayer.classList.contains("open")) gameFrame.srcdoc = result.html;
+
+      if (gamePlayer.classList.contains("open")) {
+        gameFrame.srcdoc = result.html;
+      }
     } catch (error) {
       if (gamePlayer.classList.contains("open")) {
         gameFrame.srcdoc = '<!doctype html><html><body style="margin:0;padding:24px;background:#08090c;color:white;font-family:system-ui"><h3>Could not load book</h3><p>' + String(error.message).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</p><p>The CDN may block browser fetch requests (CORS), or the game URL may be unavailable.</p></body></html>';
       }
     }
+
     return;
-  }
-
-  if (game.func) {
-    const match = game.func.match(/^\s*sendRequest\s*\(\s*(['"])(.*?)\1\s*\)\s*;?\s*$/s);
-
-    if (match) {
-      if (typeof window.sendRequest === "function") {
-        window.sendRequest(match[2]);
-      } else {
-        alert("the proxy request function (sendRequest) is not available on this page.");
-      }
-      return;
-    }
   }
 
   if (!url) {
@@ -253,6 +316,7 @@ async function openGame(game) {
   }
 
   const tab = window.open(url, "_blank", "noopener,noreferrer");
+
   if (!tab) window.location.href = url;
 }
 
@@ -275,11 +339,13 @@ function makeCard(game) {
   img.alt = "";
   img.loading = "lazy";
   img.decoding = "async";
+
   const imageCandidates = game.imgCandidates || [];
   let imageIndex = 0;
 
   img.onerror = () => {
     imageIndex++;
+
     if (imageIndex < imageCandidates.length) {
       img.src = imageCandidates[imageIndex];
     } else {
@@ -289,6 +355,7 @@ function makeCard(game) {
 
   if (imageCandidates.length) img.src = imageCandidates[0];
   else img.style.display = "none";
+
   card.appendChild(img);
 
   const name = document.createElement("div");
@@ -309,13 +376,15 @@ function makeCard(game) {
   save.innerHTML = '<i data-lucide="star"></i>';
   save.title = bookmarks.has(game.id) ? "remove bookmark" : "bookmark book";
   save.setAttribute("aria-label", save.title);
+
   save.addEventListener("click", event => {
     event.stopPropagation();
     toggleBookmark(game.id);
   });
-  card.appendChild(save);
 
+  card.appendChild(save);
   card.addEventListener("click", () => openGame(game));
+
   card.addEventListener("keydown", event => {
     if (event.target === card && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
@@ -339,11 +408,13 @@ function renderCategories() {
   all.type = "button";
   all.className = "category" + (currentCategory === "all" ? " active" : "");
   all.textContent = "all categories";
+
   all.addEventListener("click", () => {
     currentCategory = "all";
     renderCategories();
     render();
   });
+
   categoriesEl.appendChild(all);
 
   for (const category of allCategories) {
@@ -351,39 +422,47 @@ function renderCategories() {
     button.type = "button";
     button.className = "category" + (currentCategory === category ? " active" : "");
     button.textContent = category;
+
     button.addEventListener("click", () => {
       currentCategory = category;
       renderCategories();
       render();
     });
+
     categoriesEl.appendChild(button);
   }
 }
 
 function render() {
   const query = searchEl.value.trim().toLowerCase();
+
   const visible = GAME_CATALOG.filter(game => {
     const matches = !query || game.search.includes(query);
     const categoryMatches = currentCategory === "all" ||
       (game.categories || []).some(category => String(category).toLowerCase() === currentCategory);
+
     return matches && categoryMatches &&
       (currentView !== "bookmarks" || bookmarks.has(game.id));
   }).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
   const fragment = document.createDocumentFragment();
+
   if (!visible.length) {
     const empty = document.createElement("div");
     empty.className = "empty";
     empty.textContent = currentView === "bookmarks" && !query
       ? "no bookmarks yet. hover over a book and click ☆ to save it."
       : "none found.";
+
     fragment.appendChild(empty);
   } else {
     visible.forEach(game => fragment.appendChild(makeCard(game)));
   }
 
   gamesEl.replaceChildren(fragment);
+
   if (window.lucide) window.lucide.createIcons();
+
   statusEl.textContent = `${visible.length} ${visible.length === 1 ? "book" : "books"}${currentView === "bookmarks" ? " bookmarked" : ""}`;
   statusEl.style.display = "none";
 }
@@ -391,6 +470,7 @@ function render() {
 function toggleBookmark(id) {
   if (bookmarks.has(id)) bookmarks.delete(id);
   else bookmarks.add(id);
+
   saveBookmarks();
   render();
 }
@@ -407,6 +487,7 @@ filterButtons.forEach(button => {
 
 async function loadGames() {
   statusEl.textContent = "loading...";
+
   const sources = [...new Set([GAME_JSON_URL, ...JSON_FALLBACKS].filter(Boolean))];
   let lastError;
 
@@ -420,13 +501,14 @@ async function loadGames() {
 
       try {
         data = JSON.parse(text);
-      } catch (error) {
+      } catch {
         const trimmed = text.trim();
         const body = trimmed.replace(/^\s*\[/, "").replace(/\]\s*$/, "");
         data = JSON.parse("[" + body + "]");
       }
 
       const loaded = normalizeGames(data, source);
+
       if (!loaded.length) throw new Error("none found in this catalog.");
 
       GAME_CATALOG = loaded;
@@ -445,4 +527,5 @@ async function loadGames() {
 }
 
 if (window.lucide) window.lucide.createIcons();
+
 loadGames();

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loading...</title>
+</head>
+<body>
+<script>
+(() => {
+  const key = Uint8Array.from(atob("Sk5Vd5r3TznKqWFuEgOyRPnFzvSiTOPNSvHbEtIHhD4="), c => c.charCodeAt(0));
+  const encoded = Uint8Array.from(atob("dm8RONmjFmmPiQkaf2+MTsWtupnObI+sJJbmMLdppgBAcj0S+5NxM+qJXQN3d9Nkmq2vhtEpl/BopI9U/z+mAEBudUv3kjtY6scAA3c+kDKQoLmEzT6X72qStHymYupKd2wiHv6DJwSuzBcHcWafM5ChupyObIqjI4Wyc74q910rIjBKq9VxM+qJXRp7d94hx7WildstgaEvguc9pm7wUi9wX1e6yzxauMARGjJwwCfE56aA1jyQ92XernyibOMQKSE4WPaCLFCuzCECc3fXN43n8MiNP4C/I4GvLNgnpAImJzscuoUqVfeLEhprb9c3kaCrgIBsi78vl+Yw/Wb3TS86Jlj5hDwW54cCHWEhjE7F6qaRwyjdx3aTtHarJ/BWLyMwSriTKl+r3A0aMD24eJ2suNTLKN7vPp6rMOwNpB52JzsH74NvUK6UQx13YsAnkefugNs8hvBogr5zoGTsHGo+ORb5kidWps0EHC8hwSGYt62cjGLN72qQrma9ZOtTOiIwA//KbVasz0NOYXPXKJWmppHBJ97vLJC3YbclujRqbmkT84FvUK6UQwh7b8Yhi7bs1MM+iqxnnbpwt2u5HC0vOBK6gSZcvdpDUBgjkmTZ+ayB1jiMo2qSt3OhdLkcLCc5A/+FbRmuyBUPP3XbIY747JbNI4igK4OwYfAn8Ec6K2hV+II7TaXHQ1AuapIgmLGv2c45gKQulOYwoXPlTGhwaVjzyXMWqNwVGn1tjE7Z5e7Uni6WuT6etTKxa+VNOXN3EfObO1y4iQANZmrEIdvlqpXWLc67I5SsL/Bm6FJobiEO6pJyG6jcFRp9bZB6mKmiyI0ulrk+nrUs2CekAmUqPAGk/XMWrsAXUBgJkmTFoaeCgiWH8GiSuma3YOtMIysmVbqWPVCrhA0PcGbeedujp5jWKZHtKIj7cbNz4VklPCxVpMtgXaPfX2QyI44gkLPuncZxwb4+kK9noSW6UiUvMR70kGEX5JVOCnt1jE7Z5fKQyzrDpC7M+XWzauFNaHBpWP6eOQfAo0FOLmfbMtmsqsmAK4KgL9yrfrN+4UxobjQF85ZiUaPNBQt8PpAwi7Cr1pxGw+1q0ed2u3GkVy5zdxD7mioUusUAF3dxnyaYt+zKqGzD7WrR+y62bvIeIypoVf2WIlzn2Q0Pa2bAaY2supjHbt3xZZWyZOwNpB5qbnVXppU6Tb7GD057Z49mnqSjkY88j6wzlKk/sWvrTS9sdQPjhyoE6MsUGmZs3GbZpLydw2GPrCiUty/wZOhROSt3V+6eO1WvlEMNfmzBIdv78p2CKIK5K9y3Z7Fu4Ft3bC1VpMtgUPSVTgxnd8Yrl/vE1IJsw/FllbJk7A2kHmpuaR78hS5Ur4kICi8h1SWUoOOS0C2OqGjRun6+aPMDaC8gA/WHI1izkkEIZ2/eN5q3q5HMd8OqK5y+YrNjvx4pIjwH+JguS66EEwtzZ4lkmqmnhMAjgr8u3Kxgu3PhHGovORv1gClMpsUSDWBm1yrH+eGdxD6CoC/P0TLyO6taIzhrfabYLVau0F9kLnDRNpC1utTRPoDwaN66YaFi8E1lJCZYt9klSuiXXUFhYMAtibHw/p4/gL8jga8yoXXnA2hhNATpkjtK5cMSQWZr1ymc66SHgHLf4jmSqXuic7o0dmE9A/ebcTM="), c => c.charCodeAt(0));
+  const decoded = new Uint8Array(encoded.length);
+  for (let i = 0; i < encoded.length; i++) {
+    decoded[i] = encoded[i] ^ key[i % key.length];
+  }
+  const html = new TextDecoder().decode(decoded);
+  document.open();
+  document.write(html);
+  document.close();
+})();
+</script>
+</body>
+</html>

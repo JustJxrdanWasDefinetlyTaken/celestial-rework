@@ -411,3 +411,195 @@ button {
         padding-left: 12px;
     }
 }
+
+.viewport {
+    position: relative;
+    overflow: hidden;
+}
+
+.viewport iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.viewport iframe:not(.active) {
+    display: none;
+}
+
+.newtab-page {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 24px;
+    background: var(--background, #0b0b0b);
+}
+
+.newtab-page[hidden] {
+    display: none;
+}
+
+.newtab-title {
+    margin: 0;
+    color: var(--color, #fff);
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 700;
+    letter-spacing: -3px;
+}
+
+.newtab-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(100%, 560px);
+    padding: 8px 10px 8px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.newtab-search:focus-within {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.newtab-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--color, #fff);
+    font: inherit;
+    font-size: 15px;
+}
+
+.newtab-search input::placeholder {
+    color: var(--color, #fff);
+    opacity: 0.55;
+}
+
+.newtab-search button {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color, #fff);
+    cursor: pointer;
+}
+
+.newtab-search button:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.newtab-search button svg {
+    width: 19px;
+    height: 19px;
+}
+
+.tab-globe-icon,
+.tab-favicon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.tab-favicon {
+    object-fit: contain;
+    display: none;
+}
+
+.tab-favicon.loaded {
+    display: block;
+}
+
+.tab-globe-icon {
+    display: block;
+}
+
+.tab-globe-icon[hidden] {
+    display: none;
+}
+
+
+.newtab-shortcuts {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 48px;
+    width: 100%;
+}
+
+.newtab-shortcut {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+.shortcut-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    border: 1px solid #606064;
+    border-radius: 50%;
+    background: #222225;
+    color: #fff;
+    transition: background 0.15s ease;
+    padding:20px;
+}
+
+button .newtab-shortcut {
+    padding:15px;
+}
+
+.shortcut-icon img {
+    width: 55px;
+    height: 55px;
+    stroke-width: 1.8;
+}
+
+.shortcut-label {
+    font-size: 16px;
+    text-transform: lowercase;
+}
+
+.newtab-shortcut:focus-visible .shortcut-icon {
+    outline: 2px solid white;
+    outline-offset: 3px;
+}
+
+@media (max-width: 500px) {
+    .newtab-shortcuts {
+        gap: 24px;
+    }
+
+    .shortcut-icon {
+        width: 68px;
+        height: 68px;
+    }
+
+    .shortcut-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+}
