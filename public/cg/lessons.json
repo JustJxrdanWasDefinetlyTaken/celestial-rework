@@ -1,0 +1,1649 @@
+{
+    "ok": true,
+    "games": [
+        {
+            "embedId": "as3455",
+            "gameName": "Stumble Guys",
+            "logo": "/astra/cg/ng-stumble-guys-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as7968",
+            "gameName": "Among Us",
+            "logo": "/astra/cg/ng-among-us-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as7304",
+            "gameName": "Call of Duty Mobile",
+            "logo": "/astra/cg/ng-cod-grid.webp",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as4697",
+            "gameName": "Aptoide",
+            "logo": "/astra/cg/ng-aptoide-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as1560",
+            "gameName": "Fortnite",
+            "logo": "/astra/cg/ng-fortnite-grid.webp",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as8857",
+            "gameName": "Android",
+            "logo": "/astra/cg/ng-android-grid.webp",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as7244",
+            "gameName": "Discord",
+            "logo": "/astra/cg/ng-discord-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as4414",
+            "gameName": "Instagram",
+            "logo": "/astra/cg/ng-instagram-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as4236",
+            "gameName": "TikTok",
+            "logo": "/astra/cg/ng-tiktok-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as3018",
+            "gameName": "Rocket League Sideswipe",
+            "logo": "/astra/cg/ng-rocket-league-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as7570",
+            "gameName": "EA SPORTS FC Mobile",
+            "logo": "/astra/cg/ng-fc-mobile-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as0161",
+            "gameName": "Madden NFL 24 Mobile",
+            "logo": "/astra/cg/ng-madden-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as5609",
+            "gameName": "EA SPORTS UFC Mobile 2",
+            "logo": "/astra/cg/ng-ufc-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as1366",
+            "gameName": "Roblox",
+            "logo": "/astra/cg/tg-roblox-grid.jpg",
+            "provider": "quaternary"
+        },
+        {
+            "embedId": "as5575",
+            "gameName": "Clash Royale",
+            "logo": "/astra/cg/tg-clash-royale-grid.jpg",
+            "provider": "tertiary"
+        },
+        {
+            "embedId": "as7788",
+            "gameName": "NBA 2K23",
+            "logo": "/astra/cg/nba2k23-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4452",
+            "gameName": "Tomb Raider",
+            "logo": "/astra/cg/tomb-raider-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4823",
+            "gameName": "Dustborn",
+            "logo": "/astra/cg/dustborn-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8679",
+            "gameName": "Steel Seed",
+            "logo": "/astra/cg/steel-seed-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8934",
+            "gameName": "Minion Rush: Despicable Me",
+            "logo": "/astra/cg/minion-rush-despicable-me-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6342",
+            "gameName": "Devil's Hunt",
+            "logo": "/astra/cg/devil-s-hunt-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7192",
+            "gameName": "The Walking Dead: Destinies",
+            "logo": "/astra/cg/the-walking-dead-destinies-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4334",
+            "gameName": "AO Tennis 2",
+            "logo": "/astra/cg/ao-tennis-2-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4188",
+            "gameName": "Rise of the Tomb Raider",
+            "logo": "/astra/cg/rise-of-the-tomb-raider-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7130",
+            "gameName": "Home Sweet Home",
+            "logo": "/astra/cg/home-sweet-home-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5494",
+            "gameName": "Kona",
+            "logo": "/astra/cg/kona-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4084",
+            "gameName": "Just Cause 3",
+            "logo": "/astra/cg/just-cause-3-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0588",
+            "gameName": "Arise: A Simple Story",
+            "logo": "/astra/cg/arise-a-simple-story-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4886",
+            "gameName": "Cats on Duty",
+            "logo": "/astra/cg/cats-on-duty-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0982",
+            "gameName": "Not For Broadcast",
+            "logo": "/astra/cg/not-for-broadcast-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5635",
+            "gameName": "Night Call",
+            "logo": "/astra/cg/night-call-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7986",
+            "gameName": "Until Then",
+            "logo": "/astra/cg/until-then-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as3250",
+            "gameName": "Night Book",
+            "logo": "/astra/cg/night-book-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2589",
+            "gameName": "The Final Station",
+            "logo": "/astra/cg/the-final-station-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as3579",
+            "gameName": "Styx: Master of Shadows",
+            "logo": "/astra/cg/styx-master-of-shadows-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2853",
+            "gameName": "BlazBlue Entropy Effect",
+            "logo": "/astra/cg/blazblue-entropy-effect-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2676",
+            "gameName": "AVICII Invector",
+            "logo": "/astra/cg/avicii-invector-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5690",
+            "gameName": "Achilles: Survivor",
+            "logo": "/astra/cg/achilles-survivor-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4543",
+            "gameName": "Beholder 2",
+            "logo": "/astra/cg/beholder-2-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2963",
+            "gameName": "Maid of Sker",
+            "logo": "/astra/cg/maid-of-sker-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5166",
+            "gameName": "Deadlink",
+            "logo": "/astra/cg/deadlink-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as3367",
+            "gameName": "Shadow of the Tomb Raider",
+            "logo": "/astra/cg/shadow-of-the-tomb-raider-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0655",
+            "gameName": "Steel Rats",
+            "logo": "/astra/cg/steel-rats-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2808",
+            "gameName": "Arboria",
+            "logo": "/astra/cg/arboria-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as9626",
+            "gameName": "Modern Combat 5 Blackout",
+            "logo": "/astra/cg/modern-combat-5-blackout-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7911",
+            "gameName": "Rollerdrome",
+            "logo": "/astra/cg/rollerdrome-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2103",
+            "gameName": "Morbid: The Lords of Ire",
+            "logo": "/astra/cg/morbid-the-lords-of-ire-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7553",
+            "gameName": "Heading Out",
+            "logo": "/astra/cg/heading-out-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8500",
+            "gameName": "AWAKEN - Astral Blade",
+            "logo": "/astra/cg/awaken-astral-blade-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5625",
+            "gameName": "Layers of Fear (2016)",
+            "logo": "/astra/cg/layers-of-fear-2016-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2042",
+            "gameName": "Golazo! Soccer League",
+            "logo": "/astra/cg/golazo-soccer-league-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8832",
+            "gameName": "Surf World Series",
+            "logo": "/astra/cg/surf-world-series-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6775",
+            "gameName": "Handball 21",
+            "logo": "/astra/cg/handball-21-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0544",
+            "gameName": "Grand Mountain Adventure: Wonderlands",
+            "logo": "/astra/cg/grand-mountain-adventure-wonderlands-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4754",
+            "gameName": "Legend Bowl",
+            "logo": "/astra/cg/legend-bowl-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7772",
+            "gameName": "SNOW - The Ultimate Edition",
+            "logo": "/astra/cg/snow-the-ultimate-edition-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6027",
+            "gameName": "Rhythm Sprout: Sick Beats & Bad Sweets",
+            "logo": "/astra/cg/rhythm-sprout-sick-beats-bad-sweets-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2127",
+            "gameName": "Legendary Eleven",
+            "logo": "/astra/cg/legendary-eleven-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5274",
+            "gameName": "Kopanito All-Stars Soccer",
+            "logo": "/astra/cg/kopanito-all-stars-soccer-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as1428",
+            "gameName": "WE ARE FOOTBALL 2024",
+            "logo": "/astra/cg/we-are-football-2024-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7818",
+            "gameName": "Five Dates",
+            "logo": "/astra/cg/five-dates-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as1258",
+            "gameName": "The Bunker",
+            "logo": "/astra/cg/the-bunker-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6193",
+            "gameName": "Bloodshore",
+            "logo": "/astra/cg/bloodshore-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4684",
+            "gameName": "The Complex",
+            "logo": "/astra/cg/the-complex-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0423",
+            "gameName": "Who Pressed Mute on Uncle Marcus?",
+            "logo": "/astra/cg/who-pressed-mute-on-uncle-marcus-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0572",
+            "gameName": "The Isle Tide Hotel",
+            "logo": "/astra/cg/the-isle-tide-hotel-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4095",
+            "gameName": "Mia and the Dragon Princess",
+            "logo": "/astra/cg/mia-and-the-dragon-princess-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7856",
+            "gameName": "I Saw Black Clouds",
+            "logo": "/astra/cg/i-saw-black-clouds-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6851",
+            "gameName": "The Descendant - Complete Season (Episodes 1 - 5)",
+            "logo": "/astra/cg/the-descendant-complete-season-episodes-1-5-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0608",
+            "gameName": "Deliver Us The Moon",
+            "logo": "/astra/cg/deliver-us-the-moon-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as0489",
+            "gameName": "Doctor Who: The Edge of Reality",
+            "logo": "/astra/cg/doctor-who-the-edge-of-reality-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4269",
+            "gameName": "Flashback 2",
+            "logo": "/astra/cg/flashback-2-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5838",
+            "gameName": "Her Majesty's SPIFFING",
+            "logo": "/astra/cg/her-majesty-s-spiffing-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4036",
+            "gameName": "Event[0]",
+            "logo": "/astra/cg/event-0-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8264",
+            "gameName": "Paradise Lost",
+            "logo": "/astra/cg/paradise-lost-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2308",
+            "gameName": "Alien rage",
+            "logo": "/astra/cg/alien-rage-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5445",
+            "gameName": "The Uncertain: Last Quiet Day",
+            "logo": "/astra/cg/the-uncertain-last-quiet-day-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as7261",
+            "gameName": "Observer: System Redux",
+            "logo": "/astra/cg/observer-system-redux-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as9134",
+            "gameName": "Flashback",
+            "logo": "/astra/cg/flashback-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5151",
+            "gameName": "The Uncertain: Light At The End",
+            "logo": "/astra/cg/the-uncertain-light-at-the-end-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2648",
+            "gameName": "Far Cry 3 - Blood Dragon",
+            "logo": "/astra/cg/far-cry-3-blood-dragon-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8591",
+            "gameName": "Saints Row IV",
+            "logo": "/astra/cg/saints-row-iv-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as9864",
+            "gameName": "Whispers of a Machine",
+            "logo": "/astra/cg/whispers-of-a-machine-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6492",
+            "gameName": "Space Prison",
+            "logo": "/astra/cg/space-prison-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as2223",
+            "gameName": "The Gap",
+            "logo": "/astra/cg/the-gap-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as6015",
+            "gameName": "Biped",
+            "logo": "/astra/cg/biped-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as8954",
+            "gameName": "Stikbold! A Dodgeball Adventure",
+            "logo": "/astra/cg/stikbold-a-dodgeball-adventure-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as9109",
+            "gameName": "Moving Out",
+            "logo": "/astra/cg/moving-out-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as9728",
+            "gameName": "Golf VS Zombies",
+            "logo": "/astra/cg/golf-vs-zombies-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as5995",
+            "gameName": "Speed Limit",
+            "logo": "/astra/cg/speed-limit-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as4788",
+            "gameName": "Kill It With Fire",
+            "logo": "/astra/cg/kill-it-with-fire-grid.jpg",
+            "provider": "primary"
+        },
+        {
+            "embedId": "as9053",
+            "gameName": "Grand Theft Auto V",
+            "logo": "/astra/cg/sg-jy0108-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8416",
+            "gameName": "Hollow Knight: Silksong",
+            "logo": "/astra/cg/sg-bs0046-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8815",
+            "gameName": "Cyberpunk 2077",
+            "logo": "/astra/cg/sg-jy0354-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0585",
+            "gameName": "Elden Ring",
+            "logo": "/astra/cg/sg-dg0170-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7614",
+            "gameName": "Sim Racing Telemetry - F1 22",
+            "logo": "/astra/cg/sg-kj0531-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8992",
+            "gameName": "Little Nightmares III",
+            "logo": "/astra/cg/sg-bs0039-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4075",
+            "gameName": "X-Plane 11",
+            "logo": "/astra/cg/sg-kj0495-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7123",
+            "gameName": "GUILTY GEAR -STRIVE-",
+            "logo": "/astra/cg/sg-kj0530-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9989",
+            "gameName": "Clair Obscur: Expedition 33",
+            "logo": "/astra/cg/sg-bs0034-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6117",
+            "gameName": "Easy Red 2",
+            "logo": "/astra/cg/sg-bs0035-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6716",
+            "gameName": "The First Berserker: Khazan",
+            "logo": "/astra/cg/sg-bs0023-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2026",
+            "gameName": "SAND LAND",
+            "logo": "/astra/cg/sg-dg0419-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6450",
+            "gameName": "JDM: Japanese Drift Master",
+            "logo": "/astra/cg/sg-bs0026-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8175",
+            "gameName": "Blue Prince",
+            "logo": "/astra/cg/sg-bs0021-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5726",
+            "gameName": "Only Up",
+            "logo": "/astra/cg/sg-bs0025-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2638",
+            "gameName": "Schedule 1",
+            "logo": "/astra/cg/sg-bs0024-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8135",
+            "gameName": "RuneScape: Dragonwilds",
+            "logo": "/astra/cg/sg-bs0022-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4757",
+            "gameName": "Poppy Playtime: Chapter 4",
+            "logo": "/astra/cg/sg-dg0730-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4277",
+            "gameName": "Raft",
+            "logo": "/astra/cg/sg-kj0209-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4656",
+            "gameName": "Football Manager 2023",
+            "logo": "/astra/cg/sg-kj0461-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9727",
+            "gameName": "Platform 8",
+            "logo": "/astra/cg/sg-kj0529-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2923",
+            "gameName": "Uncharted 4",
+            "logo": "/astra/cg/sg-dg0248-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0590",
+            "gameName": "Cities: Skylines 2",
+            "logo": "/astra/cg/sg-dg0364-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5836",
+            "gameName": "Frostpunk 2",
+            "logo": "/astra/cg/sg-dg0533-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4449",
+            "gameName": "Poppy Playtime: Chapter 2",
+            "logo": "/astra/cg/sg-kj0138-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4140",
+            "gameName": "Poppy Playtime: Chapter 1",
+            "logo": "/astra/cg/sg-kj0137-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5023",
+            "gameName": "Poppy Playtime: Chapter 3",
+            "logo": "/astra/cg/sg-kj0442-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6497",
+            "gameName": "Mafia III: Definitive Edition",
+            "logo": "/astra/cg/sg-dg0492-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7894",
+            "gameName": "Mafia II: Definitive Edition",
+            "logo": "/astra/cg/sg-dg0491-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7398",
+            "gameName": "TCG Card Shop",
+            "logo": "/astra/cg/sg-kp0232-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5605",
+            "gameName": "Undertale",
+            "logo": "/astra/cg/sg-kj0306-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3894",
+            "gameName": "Counter-Strike 2 (Steam)",
+            "logo": "/astra/cg/sg-bs0040-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6839",
+            "gameName": "God of War: Ragnarök",
+            "logo": "/astra/cg/sg-bs0017-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5786",
+            "gameName": "Supermarket Simulator",
+            "logo": "/astra/cg/sg-kp0203-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6872",
+            "gameName": "Brotato",
+            "logo": "/astra/cg/sg-dg0380-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2512",
+            "gameName": "Sniper：Ghost Warrior Contracts2",
+            "logo": "/astra/cg/sg-kp0133-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3438",
+            "gameName": "God of War 4",
+            "logo": "/astra/cg/sg-dg0154-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7688",
+            "gameName": "Halo: The Master Chief Collection",
+            "logo": "/astra/cg/sg-kj0229-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6400",
+            "gameName": "Ratchet & Clank",
+            "logo": "/astra/cg/sg-kj0287-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6925",
+            "gameName": "The Last of Us™ Part I",
+            "logo": "/astra/cg/sg-dg0315-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9481",
+            "gameName": "Hollow Knight",
+            "logo": "/astra/cg/sg-jy0011-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6038",
+            "gameName": "Neon Abyss",
+            "logo": "/astra/cg/sg-dg0359-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0868",
+            "gameName": "Need for Speed: Payback",
+            "logo": "/astra/cg/sg-kj0181-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4224",
+            "gameName": "SpongeBob SquarePants: Battle for Bikini Bottom",
+            "logo": "/astra/cg/sg-kj0161-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0517",
+            "gameName": "SpongeBob SquarePants: The Cosmic Shake",
+            "logo": "/astra/cg/sg-kj0150-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8020",
+            "gameName": "Drift Racing Online",
+            "logo": "/astra/cg/sg-kj0141-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2183",
+            "gameName": "Choo-Choo Charles",
+            "logo": "/astra/cg/sg-dg0278-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7933",
+            "gameName": "NBA 2K23",
+            "logo": "/astra/cg/sg-kj0107-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3714",
+            "gameName": "Ranch Simulator22",
+            "logo": "/astra/cg/sg-kj0085-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4260",
+            "gameName": "Marvel’s Spider-Man Remastered",
+            "logo": "/astra/cg/sg-kj0089-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6116",
+            "gameName": "Stray",
+            "logo": "/astra/cg/sg-dg0183-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2377",
+            "gameName": "Subnautica Zero",
+            "logo": "/astra/cg/sg-kj0025-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9460",
+            "gameName": "GhostWire: Tokyo",
+            "logo": "/astra/cg/sg-KJ0019-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8791",
+            "gameName": "Nintendo Star Brawl",
+            "logo": "/astra/cg/sg-kj0332-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4695",
+            "gameName": "LEGO The Incredibles",
+            "logo": "/astra/cg/sg-bs0115-grid.webp?v=2",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3888",
+            "gameName": "Watch Dogs: Legion",
+            "logo": "/astra/cg/sg-dg0159-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4905",
+            "gameName": "Cooking Simulator",
+            "logo": "/astra/cg/sg-dg0145-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6486",
+            "gameName": "FIFA19",
+            "logo": "/astra/cg/sg-dg0139-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0630",
+            "gameName": "Arma 3",
+            "logo": "/astra/cg/sg-dg0054-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2868",
+            "gameName": "Assassin's Creed: Brotherhood",
+            "logo": "/astra/cg/sg-dg0062-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2493",
+            "gameName": "Assassin's Creed: Revelations",
+            "logo": "/astra/cg/sg-dg0063-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0820",
+            "gameName": "Assassin's Creed: Black Flag",
+            "logo": "/astra/cg/sg-dg0064-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5948",
+            "gameName": "Assassin's Creed: Syndicate",
+            "logo": "/astra/cg/sg-dg0065-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2245",
+            "gameName": "Football：PES 2021",
+            "logo": "/astra/cg/sg-dg0024-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7220",
+            "gameName": "A Way Out",
+            "logo": "/astra/cg/sg-dg0021-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6828",
+            "gameName": "Days Gone",
+            "logo": "/astra/cg/sg-jy0487-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3299",
+            "gameName": "Forza Horizon 4",
+            "logo": "/astra/cg/sg-jy0541-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0112",
+            "gameName": "My Friend Pedro",
+            "logo": "/astra/cg/sg-jy0473-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5389",
+            "gameName": "Control",
+            "logo": "/astra/cg/sg-jy0417-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9945",
+            "gameName": "Halo: Reach",
+            "logo": "/astra/cg/sg-jy0371-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8181",
+            "gameName": "Fallout 4",
+            "logo": "/astra/cg/sg-jy0310-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7480",
+            "gameName": "It Takes Two",
+            "logo": "/astra/cg/sg-jy0440-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9072",
+            "gameName": "Minecraft:Dungeons",
+            "logo": "/astra/cg/sg-jy0402-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5269",
+            "gameName": "Destiny 2 (Steam)",
+            "logo": "/astra/cg/sg-bs0043-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2573",
+            "gameName": "War Thunder (Steam)",
+            "logo": "/astra/cg/sg-bs0042-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2144",
+            "gameName": "Wolf Mate",
+            "logo": "/astra/cg/sg-bs0036-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0297",
+            "gameName": "Crashlands 2",
+            "logo": "/astra/cg/sg-bs0020-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5728",
+            "gameName": "Mandragora: Whispers of the Witch Tree",
+            "logo": "/astra/cg/sg-bs0019-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4008",
+            "gameName": "Manor Lords",
+            "logo": "/astra/cg/sg-kp0213-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5882",
+            "gameName": "inZOI",
+            "logo": "/astra/cg/sg-kj0620-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9818",
+            "gameName": "AI LIMIT",
+            "logo": "/astra/cg/sg-bs0018-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6351",
+            "gameName": "Horizon Zero Dawn",
+            "logo": "/astra/cg/sg-dg0598-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2539",
+            "gameName": "Dead Space™ 3",
+            "logo": "/astra/cg/sg-kj0615-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1832",
+            "gameName": "Deathloop",
+            "logo": "/astra/cg/sg-kj0035-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5846",
+            "gameName": "Dead Space 2",
+            "logo": "/astra/cg/sg-kj0614-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7629",
+            "gameName": "Inside the Backrooms",
+            "logo": "/astra/cg/sg-kj0179-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7991",
+            "gameName": "Five Hearts Under One Roof",
+            "logo": "/astra/cg/sg-dg0589-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2369",
+            "gameName": "The Callisto Protocol",
+            "logo": "/astra/cg/sg-kj0483-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1232",
+            "gameName": "ARK: Survival Ascended",
+            "logo": "/astra/cg/sg-kp0015-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4938",
+            "gameName": "Yandere Simulator",
+            "logo": "/astra/cg/sg-dg0639-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5266",
+            "gameName": "Amanda the Adventurer",
+            "logo": "/astra/cg/sg-kj0177-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9494",
+            "gameName": "Watch Dogs 2",
+            "logo": "/astra/cg/sg-jy0147-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9815",
+            "gameName": "Doom Eternal",
+            "logo": "/astra/cg/sg-jy0488-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3729",
+            "gameName": "Cuphead",
+            "logo": "/astra/cg/sg-jy0146-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1931",
+            "gameName": "ONE PIECE: PIRATE WARRIORS 4",
+            "logo": "/astra/cg/sg-jy0183-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1049",
+            "gameName": "Attack On Titan2",
+            "logo": "/astra/cg/sg-jy0208-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0087",
+            "gameName": "Minecraft: Legends",
+            "logo": "/astra/cg/sg-kj0191-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6437",
+            "gameName": "Wobbly Life",
+            "logo": "/astra/cg/sg-kj0238-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3336",
+            "gameName": "Overcooked 2",
+            "logo": "/astra/cg/sg-jy0281-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3972",
+            "gameName": "One Piece: Burning Blood",
+            "logo": "/astra/cg/sg-jy0059-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3933",
+            "gameName": "Alba: A Wildlife Adventure",
+            "logo": "/astra/cg/sg-jy0362-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0426",
+            "gameName": "Resident Evil: Revelations 2",
+            "logo": "/astra/cg/sg-jy0235-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3433",
+            "gameName": "Resident Evil 2: Remake",
+            "logo": "/astra/cg/sg-jy0040-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7104",
+            "gameName": "Ori and the Will of the Wisps",
+            "logo": "/astra/cg/sg-jy0126-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6044",
+            "gameName": "Party Hard2",
+            "logo": "/astra/cg/sg-jy0470-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8474",
+            "gameName": "Tomb Raider - Definitive Edition",
+            "logo": "/astra/cg/sg-bs0048-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5829",
+            "gameName": "Cricket 26",
+            "logo": "/astra/cg/sg-bs0047-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5938",
+            "gameName": "MiSide",
+            "logo": "/astra/cg/sg-dg0676-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3792",
+            "gameName": "SCUM",
+            "logo": "/astra/cg/sg-kj0222-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6690",
+            "gameName": "Buckshot Roulette",
+            "logo": "/astra/cg/sg-kj0426-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1613",
+            "gameName": "The Long Drive",
+            "logo": "/astra/cg/sg-kj0202-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6573",
+            "gameName": "GigaBash",
+            "logo": "/astra/cg/sg-kj0237-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7449",
+            "gameName": "Zoonomaly",
+            "logo": "/astra/cg/sg-kp0208-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8232",
+            "gameName": "Hades II",
+            "logo": "/astra/cg/sg-kj0499-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4297",
+            "gameName": "Alan Wake 2",
+            "logo": "/astra/cg/sg-kj0357-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9637",
+            "gameName": "Stick Fight: The Game",
+            "logo": "/astra/cg/sg-kj0322-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9587",
+            "gameName": "Builder Simulator",
+            "logo": "/astra/cg/sg-kj0135-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0258",
+            "gameName": "Super Bunny Man",
+            "logo": "/astra/cg/sg-kj0171-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3447",
+            "gameName": "THE KING OF FIGHTERS XV",
+            "logo": "/astra/cg/sg-dg0174-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4566",
+            "gameName": "Grand Theft Auto: Vice City",
+            "logo": "/astra/cg/sg-dg0129-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8178",
+            "gameName": "Grand Theft Auto: San Andreas",
+            "logo": "/astra/cg/sg-dg0128-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0725",
+            "gameName": "Grand Theft Auto III",
+            "logo": "/astra/cg/sg-dg0127-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3884",
+            "gameName": "The Legend of Zelda: Breath of the Wild",
+            "logo": "/astra/cg/sg-jy0408-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5548",
+            "gameName": "ARK: Survival Evolved",
+            "logo": "/astra/cg/sg-dg0109-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2864",
+            "gameName": "Cities: Skylines",
+            "logo": "/astra/cg/sg-kj0185-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5512",
+            "gameName": "Mount & Blade II: Bannerlord",
+            "logo": "/astra/cg/sg-kj0190-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0847",
+            "gameName": "Fling to Finish",
+            "logo": "/astra/cg/sg-dg0022-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3117",
+            "gameName": "Slime Rancher",
+            "logo": "/astra/cg/sg-jy0559-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1034",
+            "gameName": "Assassin's Creed Odyssey: The Fate of Atlantis",
+            "logo": "/astra/cg/sg-jy0238-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0656",
+            "gameName": "Euro Truck Simulator 2",
+            "logo": "/astra/cg/sg-dg0020-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7078",
+            "gameName": "Tokyo 2020 Olympics",
+            "logo": "/astra/cg/sg-dg0017-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1351",
+            "gameName": "SUPERHOT: Mind Control Delete",
+            "logo": "/astra/cg/sg-jy0482-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7847",
+            "gameName": "The Amazing Spider-Man 2",
+            "logo": "/astra/cg/sg-jy0186-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2610",
+            "gameName": "Transformers: Devastation",
+            "logo": "/astra/cg/sg-jy0435-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0540",
+            "gameName": "The Amazing Spider-Man",
+            "logo": "/astra/cg/sg-jy0459-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2158",
+            "gameName": "Call of Duty: WWII",
+            "logo": "/astra/cg/sg-jy0361-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4826",
+            "gameName": "Little Nightmares II",
+            "logo": "/astra/cg/sg-jy0416-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8273",
+            "gameName": "Hand of Fate 2",
+            "logo": "/astra/cg/sg-jy0172-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5993",
+            "gameName": "The Past Room",
+            "logo": "/astra/cg/sg-jy0324-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1346",
+            "gameName": "Little Nightmares",
+            "logo": "/astra/cg/sg-jy0325-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6956",
+            "gameName": "Mafia: Definitive Edition",
+            "logo": "/astra/cg/sg-jy0307-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1677",
+            "gameName": "Boomerang Fu",
+            "logo": "/astra/cg/sg-jy0244-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7566",
+            "gameName": "Off-Road Heroes 4",
+            "logo": "/astra/cg/sg-jy0112-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8502",
+            "gameName": "Far Cry Primal",
+            "logo": "/astra/cg/sg-jy0154-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5144",
+            "gameName": "Mirror's Edge Catalyst",
+            "logo": "/astra/cg/sg-dg0090-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6637",
+            "gameName": "Far Cry 3",
+            "logo": "/astra/cg/sg-md0483-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9781",
+            "gameName": "COD6 Modern Warfare",
+            "logo": "/astra/cg/sg-md0176-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0191",
+            "gameName": "Batman: Arkham Origins",
+            "logo": "/astra/cg/sg-jy0273-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5193",
+            "gameName": "Batman: Arkham Knight",
+            "logo": "/astra/cg/sg-jy0272-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9172",
+            "gameName": "Far Cry New Dawn",
+            "logo": "/astra/cg/sg-jy0252-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3769",
+            "gameName": "Tom Clancy's Ghost Recon Wildlands",
+            "logo": "/astra/cg/sg-jy0214-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2899",
+            "gameName": "Stardew Valley",
+            "logo": "/astra/cg/sg-jy0229-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9920",
+            "gameName": "Sekiro: Shadows Die Twice",
+            "logo": "/astra/cg/sg-jy0038-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3255",
+            "gameName": "Curse of the Dead Gods",
+            "logo": "/astra/cg/sg-jy0219-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5691",
+            "gameName": "Bloodstained: Ritual of the Night",
+            "logo": "/astra/cg/sg-jy0080-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5408",
+            "gameName": "Forager",
+            "logo": "/astra/cg/sg-jy0196-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0897",
+            "gameName": "Resident Evil 7: Biohazard",
+            "logo": "/astra/cg/sg-jy0095-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1821",
+            "gameName": "Titanfall 2",
+            "logo": "/astra/cg/sg-jy0185-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7855",
+            "gameName": "What Remains of Edith Finch",
+            "logo": "/astra/cg/sg-jy0157-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0534",
+            "gameName": "Untitled Goose Game",
+            "logo": "/astra/cg/sg-jy0124-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as8270",
+            "gameName": "Rise of the Tomb Raider",
+            "logo": "/astra/cg/sg-jy0121-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1173",
+            "gameName": "Katana ZERO",
+            "logo": "/astra/cg/sg-jy0120-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9603",
+            "gameName": "Wizard of Legend",
+            "logo": "/astra/cg/sg-jy0122-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9668",
+            "gameName": "Doraemon: Story of Seasons",
+            "logo": "/astra/cg/sg-jy0118-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3672",
+            "gameName": "Hades",
+            "logo": "/astra/cg/sg-jy0123-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9634",
+            "gameName": "Ace Combat 7: Skies Unknown",
+            "logo": "/astra/cg/sg-jy0109-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1690",
+            "gameName": "The Witcher 3",
+            "logo": "/astra/cg/sg-jy0091-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1577",
+            "gameName": "Terminator: Resistance",
+            "logo": "/astra/cg/sg-jy0105-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3227",
+            "gameName": "NieR:Automata",
+            "logo": "/astra/cg/sg-jy0103-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as0687",
+            "gameName": "Ori and the Blind Forest",
+            "logo": "/astra/cg/sg-jy0094-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as2907",
+            "gameName": "Dragon Ball Z: Kakarot",
+            "logo": "/astra/cg/sg-jy0084-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1609",
+            "gameName": "For The King",
+            "logo": "/astra/cg/sg-jy0075-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4705",
+            "gameName": "Assassin's Creed: Odyssey",
+            "logo": "/astra/cg/sg-jy0046-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3832",
+            "gameName": "Devil May Cry 5",
+            "logo": "/astra/cg/sg-jy0039-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as6019",
+            "gameName": "FINAL FANTASY VII REMAKE INTERGRADE",
+            "logo": "/astra/cg/sg-dg0158-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as7681",
+            "gameName": "How to Train Your Dragon: Dawn of New Riders",
+            "logo": "/astra/cg/sg-jy0015-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as1307",
+            "gameName": "American Fugitive",
+            "logo": "/astra/cg/sg-jy0012-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as9214",
+            "gameName": "Baldur's Gate 3",
+            "logo": "/astra/cg/sg-kj0283-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3085",
+            "gameName": "Devil May Cry 4",
+            "logo": "/astra/cg/sg-jy0008-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4660",
+            "gameName": "Dead Cells",
+            "logo": "/astra/cg/sg-jy0013-grid.jpg",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as3755",
+            "gameName": "PES 2017",
+            "logo": "/astra/cg/sg-jy0017-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as4063",
+            "gameName": "Final Fantasy XIII",
+            "logo": "/astra/cg/sg-jy0005-grid.webp",
+            "provider": "secondary"
+        },
+        {
+            "embedId": "as5146",
+            "gameName": "Transformers: Rise of the Dark Spark",
+            "logo": "/astra/cg/sg-jy0018-grid.webp",
+            "provider": "secondary"
+        }
+    ]
+}

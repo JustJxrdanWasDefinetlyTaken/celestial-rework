@@ -10,7 +10,7 @@ html, body {
   min-height: 100%;
   background: var(--background);
   color: var(--color);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
 #top {
@@ -51,7 +51,6 @@ html, body {
 }
 
 #filters {
-  display: flex;
   flex: 0 0 auto;
   flex-wrap: nowrap;
   align-items: center;
@@ -158,7 +157,8 @@ html, body {
   pointer-events: none;
 }
 
-.game:hover .name, .game:focus-visible .name {
+.game:hover .name,
+.game:focus-visible .name {
   opacity: 1;
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
@@ -251,17 +251,6 @@ html, body {
 
   .name {
     font-size: 14px;
-  }
-}
-
-@media (hover: none) {
-  .bookmark {
-    opacity: 1;
-  }
-
-  .name {
-    opacity: 1;
-    background: rgba(8, 9, 12, .35);
   }
 }
 

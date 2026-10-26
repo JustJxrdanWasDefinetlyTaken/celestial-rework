@@ -7,10 +7,10 @@ const qrw = atob(xqv) + atob(mzk);
 const vbn = qrw + atob(pjt);
 const assetCDN = vbn;
 
-const GAME_JSON_URL = "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/-.json";
+const GAME_JSON_URL = "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/-.json";
 const JSON_FALLBACKS = [
   "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/-.json",
-  "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/-.json",
+  "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/-.json",
   "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/-.json",
   "https://rawcdn.githack.com/celestialdevsalot/gassets/main/-.json",
   "https://raw.githack.com/celestialdevsalot/gassets/main/-.json",
@@ -18,12 +18,12 @@ const JSON_FALLBACKS = [
 ];
 
 const ASSET_CDNS = [
+  "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/",
   "https://rawcdn.githack.com/celestialdevsalot/gassets/main/",
   "https://raw.githack.com/celestialdevsalot/gassets/main/",
   "https://cdn.statically.io/gh/celestialdevsalot/gassets@main/",
   "https://cdn.jsdelivr.net/gh/celestialdevsalot/gassets@main/",
   "https://cdn.staticdelivr.com/gh/celestialdevsalot/gassets/main/",
-  "https://raw.githubusercontent.com/celestialdevsalot/gassets/refs/heads/main/",
   assetCDN
 ];
 
@@ -89,19 +89,19 @@ function resolveCandidates(value, sourceURL, isLocal) {
   for (const cdn of ASSET_CDNS) {
     try {
       candidates.push(new URL(relative, cdn.endsWith("/") ? cdn : cdn + "/").href);
-    } catch {}
+    } catch { }
   }
 
   if (sourceURL) {
     try {
       candidates.push(new URL(relative, new URL("./", sourceURL)).href);
-    } catch {}
+    } catch { }
   }
 
   if (isLocal) {
     try {
       candidates.push(new URL("/" + relative, location.origin).href);
-    } catch {}
+    } catch { }
   }
 
   return [...new Set(candidates)];
@@ -239,7 +239,7 @@ async function fetchGameHTML(candidates, baseOverride = "") {
           prepared = '<!doctype html><html><head>' + fallbackBase + '</head><body>' + prepared + '</body></html>';
         }
 
-        return { html: prepared, url };
+        return { html, url };
       }
 
       throw new Error("too many HTML wrappers");
@@ -363,7 +363,7 @@ function makeCard(game) {
   name.textContent = game.name;
   card.appendChild(name);
 
-  if (game.type) {
+  if (game.type && game.type.toLowerCase() !== "regular") {
     const type = document.createElement("span");
     type.className = "game-type";
     type.textContent = game.type;

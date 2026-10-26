@@ -102,14 +102,13 @@ body {
     display: block;
     flex: 1 1 auto;
     min-width: 0;
-    margin: 0;
+    margin: 0 0 2.5px;
     padding: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.4;
     align-self: center;
-    margin-bottom: 2.5px;
 }
 
 .tab-close {
@@ -157,7 +156,7 @@ body {
     height: 30px;
     min-height: 30px;
     padding: 0;
-    margin: 0;
+    margin: 3px 0 0;
     flex: 0 0 30px;
     border: none;
     border-radius: 6px;
@@ -165,7 +164,6 @@ body {
     color: var(--color);
     line-height: 1;
     cursor: pointer;
-    margin-top: 3px;
 }
 
 #newTab:hover {
@@ -271,7 +269,7 @@ button:active {
     overflow: hidden;
 }
 
-iframe {
+.viewport iframe {
     display: none;
     width: 100%;
     height: 100%;
@@ -279,7 +277,7 @@ iframe {
     background: var(--background);
 }
 
-iframe.active {
+.viewport iframe.active {
     display: block;
 }
 
@@ -291,8 +289,8 @@ iframe.active {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
-    padding: 20px;
+    gap: 28px;
+    padding: 24px;
     background: var(--background, #0b0b0b);
 }
 
@@ -311,11 +309,11 @@ iframe.active {
 .newtab-search {
     display: flex;
     align-items: center;
-    gap: 8px;
-    width: min(100%, 540px);
-    padding: 6px 8px 6px 16px;
+    gap: 10px;
+    width: min(100%, 560px);
+    padding: 8px 10px 8px 20px;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     background: var(--button);
     transition: border-color 0.2s, background 0.2s;
 }
@@ -327,18 +325,18 @@ iframe.active {
 .newtab-search input {
     flex: 1;
     min-width: 0;
-    height: 36px;
-    padding: 0;
+    height: auto;
+    padding: 12px 0;
     border: none;
     outline: none;
     background: transparent;
-    color: var(--color);
+    color: var(--color, #fff);
     font: inherit;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .newtab-search input::placeholder {
-    color: var(--color);
+    color: var(--color, #fff);
     opacity: 0.55;
 }
 
@@ -346,13 +344,13 @@ iframe.active {
     display: grid;
     flex-shrink: 0;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     padding: 0;
     border: none;
-    border-radius: 8px;
+    border-radius: 11px;
     background: var(--pallet);
-    color: var(--color);
+    color: var(--color, #fff);
     cursor: pointer;
 }
 
@@ -361,13 +359,224 @@ iframe.active {
 }
 
 .newtab-search button svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
 }
 
 input,
 button {
     font-family: inherit;
+}
+
+.newtab-shortcuts {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 48px;
+    width: 100%;
+}
+
+.newtab-shortcut {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--color);
+    font: inherit;
+    cursor: pointer;
+}
+
+.shortcut-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--pallet);
+    color: var(--color);
+    transition: background 0.15s ease;
+}
+
+.newtab-shortcut:hover .shortcut-icon {
+    background: var(--pallet-hover);
+}
+
+.shortcut-icon img,
+.shortcut-icon svg {
+    display: block;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    stroke-width: 1.8;
+}
+
+.shortcut-label {
+    font-size: 16px;
+    text-transform: lowercase;
+}
+
+.newtab-shortcut:focus-visible .shortcut-icon {
+    outline: 2px solid var(--color);
+    outline-offset: 3px;
+}
+
+.bookmark-panel {
+    position: fixed !important;
+    top: 76px !important;
+    right: 16px !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex: none !important;
+    flex-direction: column !important;
+    width: 360px !important;
+    min-width: 360px !important;
+    max-width: calc(100vw - 32px) !important;
+    height: auto !important;
+    min-height: 120px !important;
+    max-height: calc(100vh - 100px) !important;
+    padding: 0 !important;
+    overflow: hidden;
+    transform: none !important;
+    zoom: 1 !important;
+    color: var(--color);
+    background: var(--pallet2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+.bookmark-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 54px;
+    padding: 12px 14px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.bookmark-heading {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.bookmark-close,
+.bookmark-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    color: var(--color);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.bookmark-close {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    font-size: 25px;
+}
+
+.bookmark-close:hover,
+.bookmark-remove:hover {
+    background: var(--pallet-hover);
+}
+
+.bookmark-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 60px;
+    padding: 6px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.bookmark-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.bookmark-item:hover {
+    background: var(--pallet-hover);
+}
+
+.bookmark-open {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 8px;
+    overflow: hidden;
+    text-align: left;
+    color: var(--color);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.bookmark-item-title {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bookmark-item-url {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color);
+    opacity: 0.6;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bookmark-remove {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+}
+
+.bookmark-remove svg,
+.bookmark-close svg {
+    display: block;
+    width: 15px;
+    height: 15px;
+}
+
+.bookmark-empty {
+    width: 100%;
+    padding: 24px 12px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.65;
 }
 
 @media (max-width: 600px) {
@@ -412,182 +621,6 @@ button {
     }
 }
 
-.viewport {
-    position: relative;
-    overflow: hidden;
-}
-
-.viewport iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-.viewport iframe:not(.active) {
-    display: none;
-}
-
-.newtab-page {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    padding: 24px;
-    background: var(--background, #0b0b0b);
-}
-
-.newtab-page[hidden] {
-    display: none;
-}
-
-.newtab-title {
-    margin: 0;
-    color: var(--color, #fff);
-    font-size: clamp(42px, 8vw, 72px);
-    font-weight: 700;
-    letter-spacing: -3px;
-}
-
-.newtab-search {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: min(100%, 560px);
-    padding: 8px 10px 8px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    transition: border-color 0.2s, background 0.2s;
-}
-
-.newtab-search:focus-within {
-    border-color: rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.newtab-search input {
-    flex: 1;
-    min-width: 0;
-    padding: 12px 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--color, #fff);
-    font: inherit;
-    font-size: 15px;
-}
-
-.newtab-search input::placeholder {
-    color: var(--color, #fff);
-    opacity: 0.55;
-}
-
-.newtab-search button {
-    display: grid;
-    flex-shrink: 0;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    border: none;
-    border-radius: 11px;
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--color, #fff);
-    cursor: pointer;
-}
-
-.newtab-search button:hover {
-    background: rgba(255, 255, 255, 0.18);
-}
-
-.newtab-search button svg {
-    width: 19px;
-    height: 19px;
-}
-
-.tab-globe-icon,
-.tab-favicon {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-}
-
-.tab-favicon {
-    object-fit: contain;
-    display: none;
-}
-
-.tab-favicon.loaded {
-    display: block;
-}
-
-.tab-globe-icon {
-    display: block;
-}
-
-.tab-globe-icon[hidden] {
-    display: none;
-}
-
-
-.newtab-shortcuts {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 48px;
-    width: 100%;
-}
-
-.newtab-shortcut {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #fff;
-    font: inherit;
-    cursor: pointer;
-}
-
-.shortcut-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 88px;
-    height: 88px;
-    border: 1px solid #606064;
-    border-radius: 50%;
-    background: #222225;
-    color: #fff;
-    transition: background 0.15s ease;
-    padding:20px;
-}
-
-button .newtab-shortcut {
-    padding:15px;
-}
-
-.shortcut-icon img {
-    width: 55px;
-    height: 55px;
-    stroke-width: 1.8;
-}
-
-.shortcut-label {
-    font-size: 16px;
-    text-transform: lowercase;
-}
-
-.newtab-shortcut:focus-visible .shortcut-icon {
-    outline: 2px solid white;
-    outline-offset: 3px;
-}
-
 @media (max-width: 500px) {
     .newtab-shortcuts {
         gap: 24px;
@@ -598,8 +631,16 @@ button .newtab-shortcut {
         height: 68px;
     }
 
+    .shortcut-icon img,
     .shortcut-icon svg {
         width: 30px;
         height: 30px;
+    }
+
+    .bookmark-panel {
+        right: 8px !important;
+        width: calc(100vw - 16px) !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 16px) !important;
     }
 }

@@ -36,8 +36,14 @@
 
             <input type="text" id="urlInput" onfocus="this.select()" placeholder="enter something.." autocomplete="off">
 
-            <button id="goBtn" type="button" aria-label="bookmarks">
-                <i data-lucide="search" class="lucide-icon"></i>
+            <button id="fullscreenBtn" type="button" aria-label="fullscreen" title="click to go fullscreen">
+                <i data-lucide="maximize" class="lucide-icon"></i>
+            </button>
+            <button id="goBtn" type="button" aria-label="bookmarks" title="click to bookmark · hold to view bookmarks">
+                <i data-lucide="bookmark" class="lucide-icon"></i>
+            </button>
+            <button id="goBtn" type="button" aria-label="settings" title="click to open the settings panel">
+                <i data-lucide="cog" class="lucide-icon"></i>
             </button>
         </div>
 
@@ -47,7 +53,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="/scramjet/scramjet.js"></script>
     <script src="/controller/controller.api.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mercuryworkshop/epoxy-transport@3.0.1/dist/index.js"></script>
+    <script type="module"
+        src="https://cdn.jsdelivr.net/npm/@jrdndevss/learning@latest/dist/index.js"></script>
     <script src="/assets/js/theme.js"></script>
     <script type="module" src="/assets/js/xqc.js"></script>
 </body>

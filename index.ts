@@ -1,8 +1,8 @@
-/// <reference types="bun" />
+// <reference types="bun" />
 
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 
-import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
+import libcurlPath from "@mercuryworkshop/libcurl-transport";
 
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 
@@ -24,15 +24,13 @@ import {
 
 } from "node:zlib";
 
-import * as sanitizeHtmlModule from "sanitize-html";
+import sanitizeHtml from "sanitize-html";
+import { handleAiRequest } from "./index_ai.ts";
+import {
+  handleCgRequest,
+  handleAstraProxy
+} from "./cg.ts";
 
-const sanitizeHtml = sanitizeHtmlModule as unknown as (
-
-  dirty: string,
-
-  options: Record<string, unknown>,
-
-) => string;
 
 type HtmlTransform = (html: string, request: Request) => string;
 
@@ -46,6 +44,42 @@ interface ServerOptions {
 
   htmlTransform?: HtmlTransform;
 
+}
+
+type AstraSocketData = {
+  upstream: WebSocket | null;
+  upstreamUrl: string;
+  headers: Record<string, string>;
+  queue: (string | Uint8Array)[];
+  closed: boolean;
+};
+
+function astraSocketHeaders(req: Request): Record<string, string> {
+  const url = new URL(req.url);
+  const headers: Record<string, string> = {};
+
+  const authorization = req.headers.get("authorization");
+  const cookie = req.headers.get("cookie");
+  const userAgent = req.headers.get("user-agent");
+
+  if (authorization) {
+    headers["Authorization"] = authorization;
+  }
+
+  if (cookie) {
+    headers["Cookie"] = cookie;
+  }
+
+  if (userAgent) {
+    headers["User-Agent"] = userAgent;
+  }
+
+  headers["Origin"] = "https://astra-education.top";
+  headers["X-Forwarded-Host"] = url.host;
+  headers["X-Forwarded-Proto"] = url.protocol.replace(":", "");
+  headers["X-Forwarded-Prefix"] = "/astra";
+
+  return headers;
 }
 
 interface HtmlEntry {
@@ -118,16 +152,6 @@ const ipLimits = new Map<string, RateLimitEntry>();
 
 const ssIpLimits = new Map<string, RateLimitEntry>();
 
-const NAVY_API_KEYS = (process.env.NAVY_API_KEY ?? "")
-
-  .split(",")
-
-  .map((key) => key.trim())
-
-  .filter(Boolean);
-
-let navyKeyIndex = 0;
-
 function extractHostHeader(request: Request): string | null {
 
   const raw =
@@ -176,11 +200,9 @@ async function loadHtml(
 
   }
 
-  const cacheKey = `${file}:${transform ? "transform" : "raw"}:${
+  const cacheKey = `${file}:${transform ? "transform" : "raw"}:${transform ? extractHostHeader(req) : ""
 
-    transform ? extractHostHeader(req) : ""
-
-  }`;
+    }`;
 
   const cached = htmlCache.get(cacheKey);
 
@@ -650,126 +672,6 @@ function rateLimitedResponse(
 
 }
 
-async function fetchNavyWithRotation(
-
-  body: Record<string, unknown>,
-
-): Promise<Response> {
-
-  if (NAVY_API_KEYS.length === 0) {
-
-    throw new Error(
-
-      "NAVY_API_KEY is not configured",
-
-    );
-
-  }
-
-  let lastResponse: Response | null = null;
-
-  let lastError: unknown = null;
-
-  const startIndex = navyKeyIndex;
-
-  for (
-
-    let attempt = 0;
-
-    attempt < NAVY_API_KEYS.length;
-
-    attempt++
-
-  ) {
-
-    const index =
-
-      (startIndex + attempt) %
-
-      NAVY_API_KEYS.length;
-
-    const apiKey = NAVY_API_KEYS[index];
-
-    try {
-
-      const response = await fetch(
-
-        "https://api.navy/v1/chat/completions",
-
-        {
-
-          method: "POST",
-
-          headers: {
-
-            Authorization: `Bearer ${apiKey}`,
-
-            "Content-Type": "application/json",
-
-          },
-
-          body: JSON.stringify(body),
-
-        },
-
-      );
-
-      if (response.ok) {
-
-        navyKeyIndex = index;
-
-        console.log(
-
-          `[navy] using key ${index + 1}/${NAVY_API_KEYS.length}`,
-
-        );
-
-        return response;
-
-      }
-
-      lastResponse = response;
-
-      console.warn(
-
-        `[navy] key ${index + 1}/${NAVY_API_KEYS.length} failed with HTTP ${response.status}`,
-
-      );
-
-    } catch (error) {
-
-      lastError = error;
-
-      console.warn(
-
-        `[navy] key ${index + 1}/${NAVY_API_KEYS.length} request failed`,
-
-        error,
-
-      );
-
-    }
-
-  }
-
-  if (lastResponse) {
-
-    return lastResponse;
-
-  }
-
-  throw lastError instanceof Error
-
-    ? lastError
-
-    : new Error(
-
-        "All Navy API keys failed",
-
-      );
-
-}
-
 async function handleMusicRequest(
 
   req: Request,
@@ -950,11 +852,11 @@ async function handleMusicRequest(
 
         key.toLowerCase() !==
 
-          "access-control-allow-origin" &&
+        "access-control-allow-origin" &&
 
         key.toLowerCase() !==
 
-          "content-encoding"
+        "content-encoding"
 
       ) {
 
@@ -1104,7 +1006,7 @@ async function handleChat(
 
       ?.trim()
 
-      ?? "unknown";
+    ?? "unknown";
 
   const rl = checkRateLimit(
 
@@ -1210,65 +1112,25 @@ async function handleChat(
 
             : sanitizeHtml(
 
-                m.content,
+              m.content,
 
-                {
+              {
 
-                  allowedTags: [],
+                allowedTags: [],
 
-                  allowedAttributes: {},
+                allowedAttributes: {},
 
-                },
+              },
 
-              ),
+            ),
 
       }));
-
-    if (NAVY_API_KEYS.length === 0) {
-
-      return new Response(
-
-        JSON.stringify({
-
-          error:
-
-            "NAVY_API_KEY is not configured",
-
-        }),
-
-        {
-
-          status: 500,
-
-          headers: {
-
-            ...corsHeaders,
-
-            "Content-Type":
-
-              "application/json",
-
-          },
-
-        },
-
-      );
-
-    }
-
-    const upstream =
-
-      await fetchNavyWithRotation({
-
-        model,
-
-        messages: cleanMessages,
-
-        temperature,
-
-        max_tokens,
-
-      });
+    const upstream = await handleAiRequest({
+      model,
+      messages: cleanMessages,
+      temperature,
+      max_tokens,
+    });
 
     const text =
 
@@ -1309,154 +1171,6 @@ async function handleChat(
             ? err.message
 
             : String(err),
-
-      }),
-
-      {
-
-        status: 500,
-
-        headers: {
-
-          ...corsHeaders,
-
-          "Content-Type":
-
-            "application/json",
-
-        },
-
-      },
-
-    );
-
-  }
-
-}
-
-async function handleCloudGaming(
-
-  req: Request,
-
-): Promise<Response> {
-
-  if (
-
-    req.method !== "GET" &&
-
-    req.method !== "POST"
-
-  ) {
-
-    return new Response(null, {
-
-      status: 405,
-
-    });
-
-  }
-
-  try {
-
-    const process = Bun.spawn([
-
-      "python",
-
-      "raccoongame.py",
-
-    ]);
-
-    const outputText =
-
-      await new Response(
-
-        process.stdout,
-
-      ).text();
-
-    const scriptData =
-
-      JSON.parse(
-
-        outputText.trim(),
-
-      );
-
-    if (
-
-      scriptData.success === false
-
-    ) {
-
-      return new Response(
-
-        JSON.stringify({
-
-          error:
-
-            scriptData.error,
-
-        }),
-
-        {
-
-          status: 408,
-
-          headers: {
-
-            ...corsHeaders,
-
-            "Content-Type":
-
-              "application/json",
-
-          },
-
-        },
-
-      );
-
-    }
-
-    return new Response(
-
-      JSON.stringify(
-
-        scriptData,
-
-      ),
-
-      {
-
-        status: 200,
-
-        headers: {
-
-          ...corsHeaders,
-
-          "Content-Type":
-
-            "application/json",
-
-        },
-
-      },
-
-    );
-
-  } catch (error) {
-
-    return new Response(
-
-      JSON.stringify({
-
-        error:
-
-          error instanceof Error
-
-            ? error.message
-
-            : String(error),
 
       }),
 
@@ -1534,7 +1248,7 @@ async function handleScreenShare(
 
       ?.trim()
 
-      ?? "unknown";
+    ?? "unknown";
 
   const rl = checkRateLimit(
 
@@ -1553,42 +1267,6 @@ async function handleScreenShare(
     return rateLimitedResponse(
 
       rl.retryAfterSec,
-
-    );
-
-  }
-
-  const ssApiKey =
-
-    process.env.SCREENSHARE_API;
-
-  if (!ssApiKey) {
-
-    return new Response(
-
-      JSON.stringify({
-
-        error:
-
-          "Screen share API not configured",
-
-      }),
-
-      {
-
-        status: 503,
-
-        headers: {
-
-          ...corsHeaders,
-
-          "Content-Type":
-
-            "application/json",
-
-        },
-
-      },
 
     );
 
@@ -1676,57 +1354,26 @@ async function handleScreenShare(
 
             : sanitizeHtml(
 
-                m.content,
+              m.content,
 
-                {
+              {
 
-                  allowedTags: [],
+                allowedTags: [],
 
-                  allowedAttributes: {},
+                allowedAttributes: {},
 
-                },
+              },
 
-              ),
+            ),
 
       }));
 
-    const upstream =
-
-      await fetch(
-
-        "https://api.navy/v1/chat/completions",
-
-        {
-
-          method: "POST",
-
-          headers: {
-
-            Authorization: `Bearer ${ssApiKey}`,
-
-            "Content-Type":
-
-              "application/json",
-
-          },
-
-          body: JSON.stringify({
-
-            model,
-
-            messages:
-
-              cleanMessages,
-
-            temperature,
-
-            max_tokens,
-
-          }),
-
-        },
-
-      );
+    const upstream = await handleAiRequest({
+      model,
+      messages: cleanMessages,
+      temperature,
+      max_tokens,
+    });
 
     const text =
 
@@ -1885,10 +1532,10 @@ function createFetchHandler(
     options.htmlTransform;
 
   return async function fetch(
-
     req: Request,
-
-  ): Promise<Response> {
+    server: Bun.Server<AstraSocketData>,
+  ):
+    Promise<Response | undefined> {
 
     try {
 
@@ -1899,6 +1546,33 @@ function createFetchHandler(
       const path =
 
         requestUrl.pathname;
+
+      if (
+        path === "/astra/live-lesson" &&
+        req.headers.get("upgrade")?.toLowerCase() === "websocket"
+      ) {
+        const upstreamUrl =
+          "wss://astra-education.top/live-lesson" +
+          requestUrl.search;
+
+        const upgraded = server.upgrade(req, {
+          data: {
+            upstream: null,
+            upstreamUrl,
+            headers: astraSocketHeaders(req),
+            queue: [],
+            closed: false,
+          },
+        });
+
+        if (upgraded) {
+          return undefined;
+        }
+
+        return new Response("websocket upgrade failed", {
+          status: 400,
+        });
+      }
 
       const acceptEncoding =
 
@@ -1948,25 +1622,6 @@ function createFetchHandler(
 
       }
 
-      const curlR =
-
-        await tryStaticPrefix(
-
-          req,
-
-          "/curl/",
-
-          libcurlPath,
-
-          path,
-
-        );
-
-      if (curlR) {
-
-        return curlR;
-
-      }
       if (
 
         path === "/api/music" ||
@@ -1987,6 +1642,14 @@ function createFetchHandler(
 
         return handleChat(req);
 
+      }
+
+      if (path === "/api/cg") {
+        return handleCgRequest(req);
+      }
+
+      if (path.startsWith("/astra/")) {
+        return handleAstraProxy(req);
       }
 
       if (
@@ -2010,20 +1673,6 @@ function createFetchHandler(
       ) {
 
         return handleMyInstantsSearch(req);
-
-      }
-
-      if (
-
-        path === "/api/cloudgaming"
-
-      ) {
-
-        return handleCloudGaming(
-
-          req,
-
-        );
 
       }
 
@@ -2247,19 +1896,329 @@ function startServer(
 
 ): void {
 
-  const server = Bun.serve({
+const server = Bun.serve({
+  hostname: options.host,
+  port: options.port,
+  fetch: createFetchHandler(options),
 
-    hostname: options.host,
+  websocket: {
+    data: {} as AstraSocketData,
 
-    port: options.port,
+    open(ws) {
+      let upstream: WebSocket;
 
-    fetch:
+      try {
+        upstream = new WebSocket(
+          ws.data.upstreamUrl,
+          {
+            headers: ws.data.headers,
+            perMessageDeflate: false,
+          },
+        );
+      } catch (error) {
+        console.error(
+          "astra websocket creation error:",
+          error,
+        );
 
-      createFetchHandler(options),
+        try {
+          ws.close(1011, "astra connection error");
+        } catch {}
 
-    idleTimeout: 180,
+        return;
+      }
 
-  });
+      ws.data.upstream = upstream;
+      upstream.binaryType = "arraybuffer";
+
+      upstream.addEventListener("open", () => {
+        console.log(
+          "astra upstream websocket connected",
+        );
+
+        for (const message of ws.data.queue) {
+          if (
+            upstream.readyState !==
+            WebSocket.OPEN
+          ) {
+            break;
+          }
+
+          try {
+            if (typeof message === "string") {
+              upstream.send(message);
+            } else {
+              const copy = new Uint8Array(
+                message.byteLength,
+              );
+
+              copy.set(message);
+              upstream.send(copy);
+            }
+          } catch (error) {
+            console.error(
+              "astra websocket queue error:",
+              error,
+            );
+          }
+        }
+
+        ws.data.queue = [];
+      });
+
+      upstream.addEventListener(
+        "message",
+        (event) => {
+          if (ws.data.closed) {
+            return;
+          }
+
+          try {
+            if (
+              typeof event.data === "string"
+            ) {
+              ws.send(event.data);
+              return;
+            }
+
+            if (
+              event.data instanceof ArrayBuffer
+            ) {
+              ws.send(event.data);
+              return;
+            }
+
+            if (
+              ArrayBuffer.isView(event.data)
+            ) {
+              const view = new Uint8Array(
+                event.data.buffer,
+                event.data.byteOffset,
+                event.data.byteLength,
+              );
+
+              const copy = new Uint8Array(
+                view.byteLength,
+              );
+
+              copy.set(view);
+              ws.send(copy);
+              return;
+            }
+
+            if (event.data instanceof Blob) {
+              event.data
+                .arrayBuffer()
+                .then((data) => {
+                  if (ws.data.closed) {
+                    return;
+                  }
+
+                  try {
+                    ws.send(data);
+                  } catch (error) {
+                    console.error(
+                      "astra client send error:",
+                      error,
+                    );
+                  }
+                })
+                .catch((error) => {
+                  console.error(
+                    "astra blob error:",
+                    error,
+                  );
+                });
+            }
+          } catch (error) {
+            console.error(
+              "astra websocket message error:",
+              error,
+            );
+          }
+        },
+      );
+
+      upstream.addEventListener(
+        "error",
+        (error) => {
+          console.error(
+            "astra websocket error:",
+            error,
+          );
+
+          if (ws.data.closed) {
+            return;
+          }
+
+          ws.data.closed = true;
+
+          try {
+            ws.close(
+              1011,
+              "astra connection error",
+            );
+          } catch (error) {
+            console.error(
+              "astra client close error:",
+              error,
+            );
+          }
+        },
+      );
+
+      upstream.addEventListener(
+        "close",
+        (event) => {
+          console.log(
+            "astra upstream websocket closed:",
+            event.code,
+            event.reason,
+          );
+
+          if (ws.data.closed) {
+            return;
+          }
+
+          ws.data.closed = true;
+
+          const validCode =
+            event.code === 1000 ||
+            (
+              event.code >= 1001 &&
+              event.code <= 1014 &&
+              event.code !== 1004 &&
+              event.code !== 1005 &&
+              event.code !== 1006
+            ) ||
+            (
+              event.code >= 3000 &&
+              event.code <= 4999
+            );
+
+          try {
+            if (validCode) {
+              ws.close(
+                event.code,
+                event.reason ||
+                  "upstream closed",
+              );
+            } else {
+              ws.close(
+                1011,
+                event.reason ||
+                  "upstream closed",
+              );
+            }
+          } catch (error) {
+            console.error(
+              "astra upstream close error:",
+              error,
+            );
+          }
+        },
+      );
+    },
+
+    message(ws, message) {
+      try {
+        const upstream =
+          ws.data.upstream;
+
+        if (
+          upstream &&
+          upstream.readyState ===
+            WebSocket.OPEN
+        ) {
+          if (typeof message === "string") {
+            upstream.send(message);
+          } else {
+            const copy = new Uint8Array(
+              message.byteLength,
+            );
+
+            copy.set(message);
+            upstream.send(copy);
+          }
+
+          return;
+        }
+
+        if (typeof message === "string") {
+          ws.data.queue.push(message);
+        } else {
+          const copy = new Uint8Array(
+            message.byteLength,
+          );
+
+          copy.set(message);
+          ws.data.queue.push(copy);
+        }
+      } catch (error) {
+        console.error(
+          "astra client message error:",
+          error,
+        );
+      }
+    },
+
+    close(ws, code, reason) {
+      ws.data.closed = true;
+
+      const upstream =
+        ws.data.upstream;
+
+      if (
+        upstream &&
+        (
+          upstream.readyState ===
+            WebSocket.OPEN ||
+          upstream.readyState ===
+            WebSocket.CONNECTING
+        )
+      ) {
+        try {
+          const validCode =
+            code === 1000 ||
+            (
+              code >= 1001 &&
+              code <= 1014 &&
+              code !== 1004 &&
+              code !== 1005 &&
+              code !== 1006
+            ) ||
+            (
+              code >= 3000 &&
+              code <= 4999
+            );
+
+          if (validCode) {
+            upstream.close(
+              code,
+              reason || undefined,
+            );
+          } else {
+            upstream.close();
+          }
+        } catch (error) {
+          console.error(
+            "astra websocket close error:",
+            error,
+          );
+        }
+      }
+
+      ws.data.queue = [];
+    },
+
+    idleTimeout: 0,
+    maxPayloadLength:
+      16 * 1024 * 1024,
+    perMessageDeflate: false,
+  },
+
+  idleTimeout: 180,
+});
 
   console.log(
 

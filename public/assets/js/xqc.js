@@ -9,18 +9,42 @@ const { defaultConfig } = $scramjet;
 const EpoxyTransport = self.EpoxyTransport.default;
 
 const urlInput = document.getElementById("urlInput");
+const fullscreenbtn = document.getElementById("fullscreenBtn");
 const tabsEl = document.getElementById("tabs");
 const viewportEl = document.getElementById("viewport");
+const reloadBtn = document.getElementById("reloadBtn");
+const bookmarkButton = document.getElementById("goBtn");
+
+const BOOKMARKS_KEY = "celestial-bookmarks";
 
 let scramjet = null;
 let activeTabId = null;
 let nextTabId = 1;
+let bookmarks = loadBookmarks();
+let bookmarkPanel = null;
+let bookmarkHoldTimer = null;
+let bookmarkHoldTriggered = false;
+let bookmarkDismissHandler = null;
+let bookmarkEscapeHandler = null;
 
 const tabs = new Map();
+
+function isPlayablesUrl(value) {
+    const input = String(value ?? "").trim();
+    return input === "/-/" || input.toLowerCase() === "celestial://playables";
+    return input === "/cg/" || input.toLowerCase() === "celestial://playables";
+}
+
+function updateReloadButton(tab) {
+    const disabled = !tab || isPlayablesUrl(tab.url);
+    reloadBtn.disabled = disabled;
+    reloadBtn.setAttribute("aria-disabled", String(disabled));
+}
 
 function norm(value) {
     const input = value.trim();
 
+    if (isPlayablesUrl(input)) return "celestial://playables";
     if (!input) return "https://search.brave.com";
     if (/^https?:\/\//i.test(input)) return input;
 
@@ -28,19 +52,16 @@ function norm(value) {
         return "http://" + input;
     }
 
-    const looksLikeDomain =
-        /^(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#]\S*)?$/i.test(input);
+    const looksLikeDomain = /^(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#]\S*)?$/i.test(input);
 
     if (looksLikeDomain) return "https://" + input;
 
-    return "https://search.brave.com/search?q=" +
-        encodeURIComponent(input);
+    return "https://search.brave.com/search?q=" + encodeURIComponent(input);
 }
 
 function getFaviconUrls(url) {
     try {
-        const domain = new URL(url).hostname;
-
+        const domain = new URL(url, location.href).hostname;
         return [
             `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`,
             `https://icons.duckduckgo.com/ip3/${encodeURIComponent(domain)}.ico`
@@ -62,7 +83,7 @@ function setTabFavicon(tab) {
     tab.favicon.hidden = true;
     tab.favicon.style.display = "none";
 
-    if (tab.isNewTab || !tab.url) {
+    if (tab.isNewTab || !tab.url || isPlayablesUrl(tab.url)) {
         tab.placeholder.hidden = false;
         tab.placeholder.style.display = "block";
         return;
@@ -113,15 +134,21 @@ function updateTabTitle(tab) {
         return;
     }
 
+    if (isPlayablesUrl(tab.url)) {
+        tab.titleElement.textContent = "playables";
+        tab.button.title = "playables";
+        return;
+    }
+
     let title = "";
 
     try {
         title = tab.iframe.contentDocument?.title?.toLowerCase() || "";
-    } catch { }
+    } catch {}
 
     if (!title) {
         try {
-            title = new URL(tab.url).hostname.toLowerCase();
+            title = new URL(tab.url, location.href).hostname.toLowerCase();
         } catch {
             title = "loading...";
         }
@@ -133,7 +160,14 @@ function updateTabTitle(tab) {
 
 function syncAddressBar(tab) {
     if (!tab || activeTabId !== tab.id) return;
-    urlInput.value = tab.isNewTab ? "" : tab.url;
+
+    urlInput.value = tab.isNewTab
+        ? ""
+        : isPlayablesUrl(tab.url)
+            ? "celestial://playables"
+            : tab.url;
+
+    updateReloadButton(tab);
 }
 
 function clearTabTimer(tab) {
@@ -147,7 +181,6 @@ function startNavigationFallback(tab) {
 
     tab.navigationTimer = setTimeout(() => {
         if (!tabs.has(tab.id)) return;
-
         syncAddressBar(tab);
         updateTabTitle(tab);
         setTabFavicon(tab);
@@ -162,7 +195,6 @@ function selectTab(id) {
 
     for (const item of tabs.values()) {
         const active = item.id === id;
-
         item.button.classList.toggle("active", active);
         item.button.setAttribute("aria-selected", String(active));
         item.iframe.classList.toggle("active", active);
@@ -170,6 +202,7 @@ function selectTab(id) {
     }
 
     syncAddressBar(tab);
+    updateReloadButton(tab);
 
     if (tab.isNewTab) {
         requestAnimationFrame(() => {
@@ -186,16 +219,13 @@ function closeTab(id) {
 
     clearTabTimer(tab);
     tab.faviconVersion++;
-
     tab.button.remove();
     tab.iframe.remove();
     tab.page.remove();
-
     tabs.delete(id);
 
     if (activeTabId === id) {
         activeTabId = null;
-
         const remaining = [...tabs.keys()];
 
         if (remaining.length) {
@@ -229,6 +259,254 @@ function decodeScramjetUrl(proxyUrl) {
         return null;
     }
 }
+
+function loadBookmarks() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || "[]");
+
+        if (!Array.isArray(saved)) return [];
+
+        return saved.filter(item =>
+            item &&
+            typeof item.url === "string" &&
+            /^https?:\/\//i.test(item.url)
+        );
+    } catch {
+        return [];
+    }
+}
+
+function saveBookmarks() {
+    try {
+        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+    } catch (error) {
+        console.error("could not save bookmarks:", error);
+    }
+}
+
+function isBookmarkable(tab) {
+    return Boolean(
+        tab &&
+        !tab.isNewTab &&
+        !isPlayablesUrl(tab.url) &&
+        /^https?:\/\//i.test(tab.url)
+    );
+}
+
+function getBookmarkTitle(tab) {
+    if (!tab) return "Untitled";
+
+    try {
+        const title = tab.iframe.contentDocument?.title?.trim();
+        if (title) return title;
+    } catch {}
+
+    try {
+        return new URL(tab.url).hostname;
+    } catch {
+        return tab.url || "Untitled";
+    }
+}
+
+function closeBookmarks() {
+    if (bookmarkDismissHandler) {
+        document.removeEventListener("pointerdown", bookmarkDismissHandler, true);
+        bookmarkDismissHandler = null;
+    }
+
+    if (bookmarkEscapeHandler) {
+        document.removeEventListener("keydown", bookmarkEscapeHandler);
+        bookmarkEscapeHandler = null;
+    }
+
+    if (bookmarkPanel) {
+        bookmarkPanel.remove();
+        bookmarkPanel = null;
+    }
+}
+
+function addBookmark(tab) {
+    if (!isBookmarkable(tab)) {
+        showBookmarks();
+        return;
+    }
+
+    const url = tab.url;
+
+    if (bookmarks.some(item => item.url === url)) {
+        showBookmarks();
+        return;
+    }
+
+    bookmarks.unshift({
+        url,
+        title: getBookmarkTitle(tab),
+        addedAt: Date.now()
+    });
+
+    saveBookmarks();
+    showBookmarks();
+}
+
+function showBookmarks() {
+    closeBookmarks();
+
+    const panel = document.createElement("div");
+    panel.className = "bookmark-panel";
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", "bookmarks");
+
+    const header = document.createElement("div");
+    header.className = "bookmark-header";
+
+    const heading = document.createElement("span");
+    heading.className = "bookmark-heading";
+    heading.textContent = "bookmarks";
+
+    const close = document.createElement("button");
+    close.className = "bookmark-close";
+    close.type = "button";
+    close.title = "close bookmarks";
+    close.setAttribute("aria-label", "close bookmarks");
+    close.innerHTML = '<i data-lucide="x" style="font-size:25px;"></i>';
+    close.addEventListener("click", closeBookmarks);
+
+    header.append(heading, close);
+
+    const list = document.createElement("div");
+    list.className = "bookmark-list";
+
+    if (bookmarks.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "bookmark-empty";
+        empty.textContent = "no bookmarks yet.";
+        list.appendChild(empty);
+    }
+
+    bookmarks.forEach(bookmark => {
+        const item = document.createElement("div");
+        item.className = "bookmark-item";
+
+        const open = document.createElement("button");
+        open.className = "bookmark-open";
+        open.type = "button";
+        open.title = bookmark.url;
+
+        const title = document.createElement("span");
+        title.className = "bookmark-item-title";
+        title.textContent = bookmark.title || bookmark.url;
+
+        const url = document.createElement("span");
+        url.className = "bookmark-item-url";
+        url.textContent = bookmark.url;
+
+        open.append(title, url);
+
+        open.addEventListener("click", () => {
+            const tab = tabs.get(activeTabId);
+            if (!tab) return;
+
+            closeBookmarks();
+            navigateTab(tab, bookmark.url);
+        });
+
+        const remove = document.createElement("button");
+        remove.className = "bookmark-remove";
+        remove.type = "button";
+        remove.title = "Remove bookmark";
+        remove.setAttribute("aria-label", `Remove ${bookmark.title || bookmark.url}`);
+        remove.innerHTML = '<i data-lucide="trash-2"></i>';
+
+        remove.addEventListener("click", () => {
+            bookmarks = bookmarks.filter(item => item.url !== bookmark.url);
+            saveBookmarks();
+            showBookmarks();
+        });
+
+        item.append(open, remove);
+        list.appendChild(item);
+    });
+
+    panel.append(header, list);
+    document.body.appendChild(panel);
+    bookmarkPanel = panel;
+
+    if (window.lucide) {
+        window.lucide.createIcons({ root: panel });
+    }
+
+    bookmarkDismissHandler = event => {
+        if (
+            bookmarkPanel &&
+            !bookmarkPanel.contains(event.target) &&
+            !bookmarkButton.contains(event.target)
+        ) {
+            closeBookmarks();
+        }
+    };
+
+    bookmarkEscapeHandler = event => {
+        if (event.key === "Escape") {
+            closeBookmarks();
+        }
+    };
+
+    requestAnimationFrame(() => {
+        if (!bookmarkPanel) return;
+
+        document.addEventListener("pointerdown", bookmarkDismissHandler, true);
+        document.addEventListener("keydown", bookmarkEscapeHandler);
+    });
+}
+
+function handleBookmarkClick() {
+    const tab = tabs.get(activeTabId);
+
+    if (!isBookmarkable(tab)) {
+        showBookmarks();
+        return;
+    }
+
+    addBookmark(tab);
+}
+
+bookmarkButton.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+
+    bookmarkHoldTriggered = false;
+    clearTimeout(bookmarkHoldTimer);
+
+    bookmarkHoldTimer = setTimeout(() => {
+        bookmarkHoldTriggered = true;
+        showBookmarks();
+    }, 1000);
+});
+
+bookmarkButton.addEventListener("pointerup", () => {
+    clearTimeout(bookmarkHoldTimer);
+});
+
+bookmarkButton.addEventListener("pointerleave", () => {
+    clearTimeout(bookmarkHoldTimer);
+});
+
+bookmarkButton.addEventListener("pointercancel", () => {
+    clearTimeout(bookmarkHoldTimer);
+});
+
+bookmarkButton.addEventListener("contextmenu", event => {
+    event.preventDefault();
+});
+
+bookmarkButton.addEventListener("click", event => {
+    if (bookmarkHoldTriggered) {
+        bookmarkHoldTriggered = false;
+        event.preventDefault();
+        return;
+    }
+
+    handleBookmarkClick();
+});
 
 function createTab() {
     const id = nextTabId++;
@@ -314,10 +592,26 @@ function createTab() {
         {
             name: "movies",
             image: "/assets/img/m.png",
-            url: "https://aether.ist/",
+            url: "https://dulo.mov",
             reversed: false
         }
     ];
+
+    const tab = {
+        id,
+        button,
+        iframe,
+        page,
+        placeholder,
+        favicon,
+        titleElement,
+        searchInput,
+        frame: null,
+        url: "",
+        isNewTab: true,
+        navigationTimer: null,
+        faviconVersion: 0
+    };
 
     shortcutItems.forEach(item => {
         const shortcut = document.createElement("button");
@@ -341,41 +635,17 @@ function createTab() {
         shortcut.append(icon, label);
 
         shortcut.addEventListener("click", () => {
-    if (item.reversed) {
-        clearTabTimer(tab);
-        tab.url = item.url;
-        tab.isNewTab = false;
-        tab.page.hidden = true;
-        updateTabTitle(tab);
-        setTabFavicon(tab);
-        syncAddressBar(tab);
-        tab.frame = null;
-        tab.iframe.src = item.url;
-    } else {
-        navigateTab(tab, item.url);
-    }
-});
+            if (item.reversed) {
+                navigateTab(tab, "celestial://playables");
+            } else {
+                navigateTab(tab, item.url);
+            }
+        });
 
         shortcuts.appendChild(shortcut);
     });
 
     page.appendChild(shortcuts);
-
-    const tab = {
-        id,
-        button,
-        iframe,
-        page,
-        placeholder,
-        favicon,
-        titleElement,
-        searchInput,
-        frame: null,
-        url: "",
-        isNewTab: true,
-        navigationTimer: null,
-        faviconVersion: 0
-    };
 
     form.addEventListener("submit", event => {
         event.preventDefault();
@@ -388,7 +658,16 @@ function createTab() {
 
     iframe.addEventListener("load", () => {
         clearTabTimer(tab);
+
         if (!tabs.has(tab.id)) return;
+
+        if (isPlayablesUrl(tab.url)) {
+            updateTabTitle(tab);
+            setTabFavicon(tab);
+            syncAddressBar(tab);
+            updateReloadButton(tab);
+            return;
+        }
 
         try {
             const proxyUrl = tab.iframe.contentWindow.location.href;
@@ -398,7 +677,7 @@ function createTab() {
                 tab.url = decodedUrl;
                 tab.isNewTab = false;
             }
-        } catch { }
+        } catch {}
 
         updateTabTitle(tab);
         setTabFavicon(tab);
@@ -418,11 +697,31 @@ function createTab() {
 }
 
 async function navigateTab(tab, value) {
-    if (!tab || !value.trim() || !scramjet) return;
+    if (!tab || !String(value ?? "").trim()) return;
 
-    const url = norm(value);
+    const input = String(value).trim();
 
     clearTabTimer(tab);
+
+    if (isPlayablesUrl(input)) {
+        tab.url = "/-/";
+        tab.isNewTab = false;
+        tab.page.hidden = true;
+        tab.frame = null;
+
+        updateTabTitle(tab);
+        setTabFavicon(tab);
+        syncAddressBar(tab);
+        updateReloadButton(tab);
+
+        tab.iframe.src = "/-/";
+        return;
+    }
+
+    const url = norm(input);
+
+    if (!scramjet) return;
+
     tab.url = url;
     tab.isNewTab = false;
     tab.page.hidden = true;
@@ -430,6 +729,7 @@ async function navigateTab(tab, value) {
     updateTabTitle(tab);
     setTabFavicon(tab);
     syncAddressBar(tab);
+    updateReloadButton(tab);
 
     try {
         if (!tab.frame) {
@@ -469,9 +769,6 @@ function go() {
     if (tab) navigateTab(tab, urlInput.value);
 }
 
-document.getElementById("goBtn").addEventListener("click", go);
-document.getElementById("newTab").addEventListener("click", createTab);
-
 urlInput.addEventListener("keydown", event => {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -479,9 +776,12 @@ urlInput.addEventListener("keydown", event => {
     }
 });
 
+document.getElementById("newTab").addEventListener("click", createTab);
+
 document.getElementById("backBtn").addEventListener("click", () => {
     const tab = tabs.get(activeTabId);
-    if (!tab?.frame?.back) return;
+
+    if (!tab?.frame?.back || isPlayablesUrl(tab.url)) return;
 
     clearTabTimer(tab);
     tab.frame.back();
@@ -490,16 +790,18 @@ document.getElementById("backBtn").addEventListener("click", () => {
 
 document.getElementById("forwardBtn").addEventListener("click", () => {
     const tab = tabs.get(activeTabId);
-    if (!tab?.frame?.forward) return;
+
+    if (!tab?.frame?.forward || isPlayablesUrl(tab.url)) return;
 
     clearTabTimer(tab);
     tab.frame.forward();
     startNavigationFallback(tab);
 });
 
-document.getElementById("reloadBtn").addEventListener("click", () => {
+reloadBtn.addEventListener("click", () => {
     const tab = tabs.get(activeTabId);
-    if (!tab) return;
+
+    if (!tab || isPlayablesUrl(tab.url)) return;
 
     clearTabTimer(tab);
 
@@ -549,6 +851,22 @@ async function init() {
         console.error("Celestial initialization failed:", error);
     }
 }
+
+fullscreenbtn.addEventListener("click", async () => {
+    const activetab = document.querySelector(".viewport iframe.active");
+
+    if (!activetab) return;
+
+    try {
+        if (document.fullscreenElement === activetab) {
+            await document.exitFullscreen();
+        } else {
+            await activetab.requestFullscreen();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 if (window.lucide) {
     window.lucide.createIcons();

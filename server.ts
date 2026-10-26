@@ -1,7 +1,28 @@
+
 import { scrapeListing } from "myinstants-scraper";
+import { appendFile } from "node:fs/promises";
 
 const MAX_LIMIT = 100;
 const MAX_PAGES = 5;
+const ERROR_LOG = "myinstants-errors.txt";
+
+async function logError(error: unknown, query: string): Promise<void> {
+    const details = error instanceof Error
+        ? error.stack || error.message
+        : String(error);
+
+    const entry = [
+        `[${new Date().toISOString()}]`,
+        `Query: ${query}`,
+        details,
+        "-".repeat(60),
+        "",
+    ].join("\n");
+
+    try {
+        await appendFile(ERROR_LOG, entry, "utf8");
+    } catch {}
+}
 
 export async function handleMyInstantsSearch(
     req: Request,
@@ -49,12 +70,8 @@ export async function handleMyInstantsSearch(
             },
         );
 
-        // Normalize the scraper's response to an array.
-        const sounds = Array.isArray(results)
-            ? results
-            : [];
+        const sounds = Array.isArray(results) ? results : [];
 
-        // Return the requested slice.
         const paginatedSounds = sounds.slice(
             offset,
             offset + limit,
@@ -66,15 +83,11 @@ export async function handleMyInstantsSearch(
             },
         });
     } catch (error) {
-        console.error("MyInstants search failed:", error);
+        await logError(error, query);
 
         return Response.json(
             {
                 error: "MyInstants search failed",
-                details:
-                    error instanceof Error
-                        ? error.message
-                        : String(error),
             },
             { status: 500 },
         );
