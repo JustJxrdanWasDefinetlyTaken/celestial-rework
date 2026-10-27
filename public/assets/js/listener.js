@@ -509,9 +509,68 @@ function addToQueue(track) {
     return;
   }
 
+  const matches = [
+    track,
+    state.results.find(
+      item =>
+        sameTrack(
+          item,
+          normalized
+        )
+    ),
+    state.playbackList.find(
+      item =>
+        sameTrack(
+          item,
+          normalized
+        )
+    ),
+    state.recent.find(
+      item =>
+        sameTrack(
+          item,
+          normalized
+        )
+    ),
+    state.liked.find(
+      item =>
+        sameTrack(
+          item,
+          normalized
+        )
+    ),
+    state.current &&
+    sameTrack(
+      state.current,
+      normalized
+    )
+      ? state.current
+      : null
+  ];
+
+  for (const item of matches) {
+    const artwork =
+      trackArtwork(item);
+
+    if (artwork) {
+      normalized.artwork =
+        artwork;
+
+      normalized.cover =
+        artwork;
+
+      normalized.image =
+        artwork;
+
+      break;
+    }
+  }
+
   state.queue.push(
-    normalized
-  );
+  normalizeTrack(
+    track
+  )
+);
 
   save();
 
@@ -4519,10 +4578,73 @@ async function fillQueueFromRecommendations() {
         trackId
       );
 
-      state.queue.push(
+      let queueTrack =
         normalizeTrack(
           track
-        )
+        );
+
+      try {
+        const query =
+          `${trackTitle(track)} ${trackArtist(track)}`;
+
+        const searchData =
+          await requestJson(
+            `/api/music/search?q=${encodeURIComponent(
+              query
+            )}`
+          );
+
+        const items =
+          Array.isArray(
+            searchData
+          )
+            ? searchData
+            : Array.isArray(
+                searchData?.items
+              )
+              ? searchData.items
+              : Array.isArray(
+                  searchData?.results
+                )
+                ? searchData.results
+                : [];
+
+        const grouped =
+          groupSearchResults(
+            items
+          );
+
+        const exact =
+          grouped.tracks.find(
+            item =>
+              key(item) ===
+              trackId
+          );
+
+        const titleMatch =
+          grouped.tracks.find(
+            item =>
+              trackTitle(item)
+                .toLowerCase() ===
+              trackTitle(track)
+                .toLowerCase()
+          );
+
+        const found =
+          exact ||
+          titleMatch ||
+          grouped.tracks[0];
+
+        if (found) {
+          queueTrack =
+            normalizeTrack(
+              found
+            );
+        }
+      } catch {}
+
+      state.queue.push(
+        queueTrack
       );
     }
 

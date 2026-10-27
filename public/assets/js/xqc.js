@@ -173,7 +173,7 @@ function updateTabTitle(tab) {
 
     try {
         title = tab.iframe.contentDocument?.title?.toLowerCase() || "";
-    } catch {}
+    } catch { }
 
     if (!title) {
         try {
@@ -341,7 +341,7 @@ function getBookmarkTitle(tab) {
         const title = tab.iframe.contentDocument?.title?.trim();
 
         if (title) return title;
-    } catch {}
+    } catch { }
 
     try {
         return new URL(tab.url).hostname;
@@ -596,7 +596,9 @@ function createTab() {
     });
 
     const iframe = document.createElement("iframe");
-    iframe.title = "new tab";
+iframe.title = "new tab";
+iframe.setAttribute("allow", "picture-in-picture; fullscreen; autoplay; display-capture");
+iframe.setAttribute("allowfullscreen", "");
 
     const page = document.createElement("div");
     page.className = "newtab-page";
@@ -731,7 +733,7 @@ function createTab() {
                 tab.url = decodedUrl;
                 tab.isNewTab = false;
             }
-        } catch {}
+        } catch { }
 
         updateTabTitle(tab);
         setTabFavicon(tab);
@@ -971,6 +973,50 @@ fullscreenbtn.addEventListener("click", async () => {
         }
     } catch (error) {
         console.error(error);
+    }
+});
+
+window.addEventListener("message", async event => {
+    if (event.data?.type !== "celestial-screen-pip-open") return;
+
+    const activetab = document.querySelector(".viewport iframe.active");
+
+    if (!activetab || event.source !== activetab.contentWindow) return;
+
+    if (!("documentPictureInPicture" in window)) {
+        event.source.postMessage({
+            type: "celestial-screen-pip-error",
+            message: "document picture-in-picture is not supported"
+        }, "*");
+        return;
+    }
+
+    try {
+        const pip = await window.documentPictureInPicture.requestWindow({
+            width: 480,
+            height: 420
+        });
+
+        window.celestialScreenPip = pip;
+
+        event.source.postMessage({
+            type: "celestial-screen-pip-ready"
+        }, "*");
+
+        pip.addEventListener("pagehide", () => {
+            event.source.postMessage({
+                type: "celestial-screen-pip-closed"
+            }, "*");
+
+            if (window.celestialScreenPip === pip) {
+                window.celestialScreenPip = null;
+            }
+        });
+    } catch (error) {
+        event.source.postMessage({
+            type: "celestial-screen-pip-error",
+            message: error.message
+        }, "*");
     }
 });
 

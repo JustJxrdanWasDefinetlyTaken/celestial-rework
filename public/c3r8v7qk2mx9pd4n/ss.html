@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title></title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: #08090c;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        #status {
+            margin: 0;
+            opacity: .5;
+            font-size: 13px;
+        }
+
+        #screenvideo {
+            position: fixed;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <h1>screen share</h1>
+        <p id="status">starting screen share...</p>
+    </div>
+
+    <video id="screenvideo" autoplay muted playsinline></video>
+
+    <script>
+        const screen_api = "/api/screenshare";
+        const device_key = "celestial-device-id-v1";
+        const settings_key = "celestial-ai-settings-v3";
+        const limit_key = "celestial-ai-limit-v3";
+        const limit_max = 130;
+        const limit_window = 3 * 60 * 60 * 1000;
+
+        let screen_stream = null;
+        let screen_pip_window = null;
+
+        const status = document.getElementById("status");
+        const video = document.getElementById("screenvideo");
+
+        function read_json(key, fallback) {
+            try {
+                return JSON.parse(localStorage.getItem(key)) ?? fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
+        function write_json(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function get_device_id() {
+            let id = localStorage.getItem(device_key);
+
+            if (!id) {
+                id = crypto.randomUUID();
+                localStorage.setItem(device_key, id);
+            }
+
+            return id;
+        }
+
+        function get_limit() {
+            const now = Date.now();
+
+            let data = read_json(limit_key, {
+                count: 0,
+                reset: now + limit_window
+            });
+
+            if (!data.reset || now >= data.reset) {
+                data = {
+                    count: 0,
+                    reset: now + limit_window
+                };
+
+                write_json(limit_key, data);
+            }
+
+            return data;
+        }
+
+        function use_prompt() {
+            const data = get_limit();
+
+            if (data.count >= limit_max) {
+                return false;
+            }
+
+            data.count++;
+            write_json(limit_key, data);
+
+            return true;
+        }
+
+        function escape_html(value = "") {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function markdown(text = "") {
+            let safe = escape_html(text);
+
+            safe = safe
+                .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(.+?)\*/g, "<em>$1</em>")
+                .replace(/`([^`]+)`/g, "<code>$1</code>")
+                .replace(/\n/g, "<br>");
+
+            return safe;
+        }
+
+        function get_system_prompt() {
+            const settings = read_json(settings_key, {});
+
+            const personality_prompts = {
+                default: "be helpful, accurate, clear, and natural.",
+                friendly: "be friendly, casual, encouraging, and easy to understand.",
+                concise: "give concise direct answers. avoid unnecessary detail.",
+                teacher: "act like a patient tutor. explain ideas clearly and step by step when useful.",
+                creative: "be imaginative and creative while remaining accurate.",
+                professional: "use a professional, organized, precise tone.",
+                custom: ""
+            };
+
+            return [
+                `your name is ${settings.aiName || "celestial"}.`,
+                personality_prompts[settings.personality || "default"] || "",
+                settings.systemPrompt || ""
+            ].filter(Boolean).join("\n");
+        }
+
+        async function api(messages) {
+            const settings = read_json(settings_key, {});
+
+            const response = await fetch(screen_api, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Device-ID": get_device_id()
+                },
+                body: JSON.stringify({
+                    model: settings.model || "gpt-6-astra",
+                    messages,
+                    temperature: .8,
+                    max_tokens: 1500
+                })
+            });
+
+            let data;
+
+            try {
+                data = await response.json();
+            } catch {
+                throw new Error("invalid response");
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error?.message ||
+                    data.error ||
+                    data.message ||
+                    `request failed (${response.status})`
+                );
+            }
+
+            return (
+                data.choices?.[0]?.message?.content ||
+                data.content?.[0]?.text ||
+                data.output_text ||
+                ""
+            );
+        }
+
+        function capture_screen() {
+            if (!video.videoWidth || !video.videoHeight) {
+                throw new Error("screen is not ready");
+            }
+
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(1, 1600 / video.videoWidth);
+
+            canvas.width = Math.round(video.videoWidth * scale);
+            canvas.height = Math.round(video.videoHeight * scale);
+
+            canvas
+                .getContext("2d")
+                .drawImage(
+                    video,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+            return canvas.toDataURL("image/jpeg", .72);
+        }
+
+        function stop_screen_share(close_pip = true) {
+            if (screen_stream) {
+                screen_stream.getTracks().forEach(track => track.stop());
+            }
+
+            screen_stream = null;
+            video.srcObject = null;
+
+            if (
+                close_pip &&
+                screen_pip_window &&
+                !screen_pip_window.closed
+            ) {
+                screen_pip_window.close();
+            }
+
+            screen_pip_window = null;
+            status.textContent = "screen sharing stopped, closing in 3 seconds...";
+
+            setTimeout(() => {
+                window.close();
+            }, 3000);
+        }
+
+        async function open_screen_pip() {
+            if (!("documentPictureInPicture" in window)) {
+                throw new Error("document picture-in-picture is not supported");
+            }
+
+            const win = await window.documentPictureInPicture.requestWindow({
+                width: 480,
+                height: 320
+            });
+
+            screen_pip_window = win;
+
+            win.document.head.innerHTML = `
+                <meta charset="utf-8">
+                <style>
+                    * {
+                        box-sizing: border-box;
+                    }
+
+                    html,
+                    body {
+                        margin: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: #08090c;
+                        color: #fff;
+                        font-family: system-ui, -apple-system, sans-serif;
+                        overflow: hidden;
+                    }
+
+                    #app {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    #bar {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px;
+                        background: #111;
+                        border-bottom: 1px solid rgba(255,255,255,.3);
+                    }
+
+                    #dot {
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 50%;
+                        background: #7ee787;
+                    }
+
+                    #name {
+                        flex: 1;
+                        font-size: 12px;
+                        opacity: .6;
+                    }
+
+                    button {
+                        background: #222;
+                        color: #fff;
+                        border: 1px solid rgba(255,255,255,.3);
+                        border-radius: 7px;
+                        padding: 6px 9px;
+                        cursor: pointer;
+                    }
+
+                    #chat {
+                        flex: 1;
+                        min-height: 0;
+                        overflow: auto;
+                        padding: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 7px;
+                    }
+
+                    .msg {
+                        max-width: 88%;
+                        padding: 8px 10px;
+                        border: 1px solid rgba(255,255,255,.3);
+                        border-radius: 8px;
+                        line-height: 1.5;
+                        font-size: 13px;
+                    }
+
+                    .user {
+                        align-self: flex-end;
+                        background: #222;
+                    }
+
+                    .ai {
+                        align-self: flex-start;
+                        background: #111;
+                    }
+
+                    #bottom {
+                        display: flex;
+                        gap: 7px;
+                        padding: 8px;
+                        background: #111;
+                        border-top: 1px solid rgba(255,255,255,.3);
+                    }
+
+                    input {
+                        flex: 1;
+                        min-width: 0;
+                        background: rgba(255,255,255,.02);
+                        color: #fff;
+                        border: 1px solid rgba(255,255,255,.3);
+                        border-radius: 8px;
+                        padding: 9px;
+                        outline: 0;
+                    }
+
+                    code {
+                        background: rgba(255,255,255,.08);
+                        padding: 2px 4px;
+                        border-radius: 4px;
+                    }
+                </style>
+            `;
+
+            win.document.body.innerHTML = `
+                <div id="app">
+                    <div id="bar">
+                        <div id="dot"></div>
+                        <div id="name">celestial ai · screen share</div>
+                        <button id="stop">stop</button>
+                    </div>
+
+                    <div id="chat"></div>
+
+                    <div id="bottom">
+                        <input
+                            id="question"
+                            placeholder="ask about what's on your screen..."
+                        >
+                        <button id="ask">ask</button>
+                    </div>
+                </div>
+            `;
+
+            const question = win.document.getElementById("question");
+            const chat = win.document.getElementById("chat");
+            const ask_button = win.document.getElementById("ask");
+
+            const add = (text, role) => {
+                const el = win.document.createElement("div");
+
+                el.className = `msg ${role}`;
+
+                el.innerHTML =
+                    role === "ai"
+                        ? markdown(text)
+                        : escape_html(text);
+
+                chat.appendChild(el);
+                chat.scrollTop = chat.scrollHeight;
+
+                return el;
+            };
+
+            const ask = async () => {
+                const text =
+                    question.value.trim() ||
+                    "what is on my screen?";
+
+                if (!use_prompt()) {
+                    add("message limit reached.", "ai");
+                    return;
+                }
+
+                question.value = "";
+
+                add(text, "user");
+
+                const thinking = add("thinking...", "ai");
+
+                ask_button.disabled = true;
+
+                try {
+                    const answer = await api([
+                        {
+                            role: "system",
+                            content: get_system_prompt()
+                        },
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: capture_screen()
+                                    }
+                                },
+                                {
+                                    type: "text",
+                                    text
+                                }
+                            ]
+                        }
+                    ]);
+
+                    thinking.innerHTML = markdown(
+                        answer || "no response returned."
+                    );
+                } catch (error) {
+                    thinking.textContent = error.message;
+                } finally {
+                    ask_button.disabled = false;
+                    question.focus();
+                }
+            };
+
+            ask_button.onclick = ask;
+
+            question.onkeydown = event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    ask();
+                }
+            };
+
+            win.document.getElementById("stop").onclick = () => {
+                stop_screen_share(true);
+            };
+
+            win.addEventListener("pagehide", () => {
+                if (screen_stream) {
+                    stop_screen_share(false);
+                }
+            });
+
+            question.focus();
+        }
+
+        async function start_screen_share() {
+            if (!navigator.mediaDevices?.getDisplayMedia) {
+                status.textContent = "screen sharing is not supported";
+                return;
+            }
+
+            if (!("documentPictureInPicture" in window)) {
+                status.textContent = "document picture-in-picture is not supported";
+                return;
+            }
+
+            status.textContent = "choose what you want to share";
+
+            try {
+                screen_stream =
+                    await navigator.mediaDevices.getDisplayMedia({
+                        video: {
+                            frameRate: 10
+                        },
+                        audio: false
+                    });
+
+                video.srcObject = screen_stream;
+
+                await video.play();
+
+                screen_stream
+                    .getVideoTracks()[0]
+                    .addEventListener("ended", () => {
+                        stop_screen_share(true);
+                    });
+
+                status.textContent = "opening picture-in-picture...";
+
+                await open_screen_pip();
+
+                status.textContent = "keep this tab open until you're done.";
+            } catch (error) {
+                console.error(error);
+
+                stop_screen_share(false);
+
+                status.textContent =
+                    error.name === "NotAllowedError"
+                        ? "screen sharing cancelled, closing in 3 seconds..."
+                        : error.message;
+
+                if (error.name === "NotAllowedError") {
+                    setTimeout(() => {
+                        window.close();
+                    }, 3000);
+                }
+            }
+        }
+
+        window.addEventListener("load", () => {
+            start_screen_share();
+        });
+
+        window.addEventListener("pagehide", () => {
+            if (screen_stream) {
+                stop_screen_share(true);
+            }
+        });
+    </script>
+</body>
+
+</html>
