@@ -1,43 +1,43 @@
-const MUSIC_API_BASE = "https://musicthing.space/api";
-const MUSIC_API_TOKEN = "galactic";
+const music_api_base = "https://musicthing.space/api";
+const music_api_token = "galactic";
 
-const MUSIC_HEADERS = {
-  Authorization: `Bearer ${MUSIC_API_TOKEN}`,
-  Accept: "application/json",
+const music_headers = {
+  Authorization: `Bearer ${music_api_token}`,
+  Accept: "application/json"
 };
 
-let currentSource = "youtube";
+let current_source = "youtube";
 
 function json(
   data: unknown,
   status = 200,
-  extraHeaders: Record<string, string> = {},
+  extra_headers: Record<string, string> = {}
 ): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
-      ...extraHeaders,
-    },
+      ...extra_headers
+    }
   });
 }
 
-function errorResponse(
+function error_response(
   message: string,
-  status = 500,
+  status = 500
 ): Response {
   return json(
     {
-      error: message,
+      error: message
     },
-    status,
+    status
   );
 }
 
-function getQueryParam(
+function get_query_param(
   url: URL,
-  name: string,
+  name: string
 ): string | null {
   const value = url.searchParams.get(name);
 
@@ -46,16 +46,16 @@ function getQueryParam(
   return value.trim() || null;
 }
 
-function buildUpstreamUrl(
+function build_upstream_url(
   path: string,
-  searchParams?: URLSearchParams,
+  search_params?: URLSearchParams
 ): string {
   const url = new URL(
-    `${MUSIC_API_BASE}${path}`,
+    `${music_api_base}${path}`
   );
 
-  if (searchParams) {
-    for (const [key, value] of searchParams.entries()) {
+  if (search_params) {
+    for (const [key, value] of search_params.entries()) {
       url.searchParams.set(key, value);
     }
   }
@@ -63,72 +63,72 @@ function buildUpstreamUrl(
   return url.toString();
 }
 
-async function proxyResponse(
+async function proxy_response(
   url: string,
-  options: RequestInit = {},
+  options: RequestInit = {}
 ): Promise<Response> {
   const response = await fetch(url, {
     ...options,
     headers: {
-      ...MUSIC_HEADERS,
-      ...(options.headers ?? {}),
-    },
+      ...music_headers,
+      ...(options.headers ?? {})
+    }
   });
 
   const headers = new Headers();
 
-  const contentType =
+  const content_type =
     response.headers.get("content-type");
 
-  if (contentType) {
+  if (content_type) {
     headers.set(
       "Content-Type",
-      contentType,
+      content_type
     );
   }
 
-  const contentLength =
+  const content_length =
     response.headers.get("content-length");
 
-  if (contentLength) {
+  if (content_length) {
     headers.set(
       "Content-Length",
-      contentLength,
+      content_length
     );
   }
 
-  const cacheControl =
+  const cache_control =
     response.headers.get("cache-control");
 
-  if (cacheControl) {
+  if (cache_control) {
     headers.set(
       "Cache-Control",
-      cacheControl,
+      cache_control
     );
   } else {
     headers.set(
       "Cache-Control",
-      "no-store",
+      "no-store"
     );
   }
 
-  const contentRange =
+  const content_range =
     response.headers.get("content-range");
 
-  if (contentRange) {
+  if (content_range) {
     headers.set(
       "Content-Range",
-      contentRange,
+      content_range
     );
   }
 
-  const acceptRanges =
+  const accept_ranges =
     response.headers.get("accept-ranges");
 
-  if (acceptRanges) {
+  if (accept_ranges) {
     headers.set(
       "Accept-Ranges",
-      acceptRanges,
+      accept_ranges
     );
   }
 
@@ -143,120 +143,277 @@ async function proxyResponse(
     response.body,
     {
       status: response.status,
-      headers,
-    },
+      headers
+    }
   );
 }
 
-function normalizeSearchResult(
-  item: any,
-) {
-  const artist =
-    Array.isArray(item.artists)
+function normalize_search_result(item: any) {
+  const result_type = String(
+    item?.resultType ||
+    item?.type ||
+    item?.category ||
+    ""
+  ).toLowerCase();
+
+  const artists =
+    Array.isArray(item?.artists)
       ? item.artists
-          .map((artist: any) => artist?.name)
-          .filter(Boolean)
-          .join(", ")
-      : "";
+      : [];
+
+  const artist = artists
+    .map((value: any) => value?.name)
+    .filter(Boolean)
+    .join(", ");
+
+  const thumbnails =
+    Array.isArray(item?.thumbnails)
+      ? item.thumbnails
+      : [];
 
   const artwork =
-    Array.isArray(item.thumbnails) &&
-    item.thumbnails.length
-      ? item.thumbnails[
-          item.thumbnails.length - 1
-        ]?.url
+    thumbnails.length
+      ? thumbnails[
+          thumbnails.length - 1
+        ]?.url || ""
       : "";
 
+  if (result_type === "artist") {
+    const id =
+      item?.browseId ||
+      item?.id ||
+      item?.channelId ||
+      item?.artistId ||
+      null;
+
+    return {
+      ...item,
+      id,
+      browseId:
+        item?.browseId ||
+        id,
+      artistId:
+        item?.artistId ||
+        id,
+      source:
+        item?.source ||
+        item?.provider ||
+        "youtube",
+      provider:
+        item?.provider ||
+        item?.source ||
+        "youtube",
+      resultType: "artist",
+      title:
+        item?.title ||
+        item?.artist ||
+        item?.name ||
+        "unknown artist",
+      artist:
+        item?.artist ||
+        item?.title ||
+        item?.name ||
+        "unknown artist",
+      artwork,
+      thumbnails,
+      raw: item
+    };
+  }
+
+  if (result_type === "album") {
+    const id =
+      item?.browseId ||
+      item?.id ||
+      item?.albumId ||
+      item?.playlistId ||
+      null;
+
+    return {
+      ...item,
+      id,
+      browseId:
+        item?.browseId ||
+        null,
+      albumId:
+        item?.albumId ||
+        id,
+      playlistId:
+        item?.playlistId ||
+        null,
+      source:
+        item?.source ||
+        item?.provider ||
+        "youtube",
+      provider:
+        item?.provider ||
+        item?.source ||
+        "youtube",
+      resultType: "album",
+      title:
+        item?.title ||
+        item?.name ||
+        item?.album?.name ||
+        item?.album?.title ||
+        "unknown album",
+      artist:
+        artist ||
+        item?.artist ||
+        "unknown artist",
+      artwork,
+      thumbnails,
+      raw: item
+    };
+  }
+
+  if (
+    result_type === "playlist" ||
+    result_type === "podcast" ||
+    result_type === "episode"
+  ) {
+    const id =
+      item?.browseId ||
+      item?.id ||
+      item?.playlistId ||
+      item?.videoId ||
+      null;
+
+    return {
+      ...item,
+      id,
+      source:
+        item?.source ||
+        item?.provider ||
+        "youtube",
+      provider:
+        item?.provider ||
+        item?.source ||
+        "youtube",
+      resultType: result_type,
+      artwork,
+      thumbnails,
+      raw: item
+    };
+  }
+
+  const id =
+    item?.videoId ||
+    item?.id ||
+    item?.trackId ||
+    null;
+
   return {
-    id: item.videoId,
-    source: "youtube",
-
+    ...item,
+    id,
+    videoId:
+      item?.videoId ||
+      id,
+    source:
+      item?.source ||
+      item?.provider ||
+      "youtube",
+    provider:
+      item?.provider ||
+      item?.source ||
+      "youtube",
     title:
-      item.title ||
-      "Unknown title",
-
+      item?.title ||
+      "unknown title",
     artist:
       artist ||
-      "Unknown artist",
-
+      item?.artist ||
+      "unknown artist",
     album:
-      item.album?.name ||
-      item.album?.title ||
+      item?.album?.name ||
+      item?.album?.title ||
+      item?.album ||
       "",
-
     duration:
-      Number(item.duration_seconds) ||
+      Number(
+        item?.duration_seconds
+      ) ||
+      Number(
+        item?.duration
+      ) ||
       0,
-
     durationText:
-      item.duration ||
-      "",
-
+      typeof item?.duration === "string"
+        ? item.duration
+        : item?.durationText || "",
     artwork,
-
-    thumbnails:
-      item.thumbnails || [],
-
+    thumbnails,
     videoType:
-      item.videoType || null,
-
-    resultType:
-      item.resultType || null,
-
-    category:
-      item.category || null,
-
-    lossless:
-      item.lossless || null,
-
-    artistId:
-      item.artists?.[0]?.id ||
+      item?.videoType ||
       null,
-
-    raw: item,
+    resultType:
+      result_type ||
+      (item?.videoId
+        ? "song"
+        : null),
+    category:
+      item?.category ||
+      null,
+    lossless:
+      item?.lossless ||
+      null,
+    artistId:
+      artists?.[0]?.id ||
+      artists?.[0]?.browseId ||
+      item?.artistId ||
+      null,
+    raw: item
   };
 }
 
-async function handleSearch(
-  req: Request,
+async function handle_search(
+  req: Request
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
-  const url = new URL(req.url);
+  const url =
+    new URL(req.url);
 
   const query =
-    getQueryParam(url, "q") ??
-    getQueryParam(url, "query");
+    get_query_param(
+      url,
+      "q"
+    ) ??
+    get_query_param(
+      url,
+      "query"
+    );
 
   if (!query) {
-    return json(
-      {
-        items: [],
-        query: "",
-        source: currentSource,
-      },
-    );
+    return json({
+      items: [],
+      query: "",
+      source: current_source
+    });
   }
 
-  const params = new URLSearchParams();
+  const params =
+    new URLSearchParams();
 
-  params.set("q", query);
+  params.set(
+    "q",
+    query
+  );
 
   try {
     const response =
       await fetch(
-        buildUpstreamUrl(
+        build_upstream_url(
           "/search",
-          params,
+          params
         ),
         {
-          headers: MUSIC_HEADERS,
-        },
+          headers:
+            music_headers
+        }
       );
 
     const text =
@@ -264,30 +421,34 @@ async function handleSearch(
 
     if (!response.ok) {
       return new Response(
-        text || JSON.stringify({
-          error: "Music search failed",
+        text ||
+        JSON.stringify({
+          error:
+            "music search failed"
         }),
         {
-          status: response.status,
+          status:
+            response.status,
           headers: {
             "Content-Type":
               response.headers.get(
-                "content-type",
+                "content-type"
               ) ??
-              "application/json",
-          },
-        },
+              "application/json"
+          }
+        }
       );
     }
 
     let data: unknown;
 
     try {
-      data = JSON.parse(text);
+      data =
+        JSON.parse(text);
     } catch {
-      return errorResponse(
-        "Music API returned invalid JSON",
-        502,
+      return error_response(
+        "music api returned invalid json",
+        502
       );
     }
 
@@ -295,345 +456,369 @@ async function handleSearch(
       Array.isArray(data)
         ? data
         : Array.isArray(
-            (data as any)?.results,
+            (data as any)?.items
           )
-          ? (data as any).results
-          : [];
+          ? (data as any).items
+          : Array.isArray(
+              (data as any)?.results
+            )
+            ? (data as any).results
+            : Array.isArray(
+                (data as any)?.collection
+              )
+              ? (data as any).collection
+              : [];
+
+    const items = results
+      .filter(
+        (item: any) =>
+          item &&
+          typeof item === "object"
+      )
+      .map(
+        normalize_search_result
+      )
+      .filter(
+        (item: any) =>
+          item?.id
+      );
+
+    const source =
+      items.find(
+        (item: any) =>
+          item?.source
+      )?.source ||
+      current_source;
 
     return json({
-      items:
-        results
-          .filter(
-            (item: any) =>
-              item &&
-              item.videoId,
-          )
-          .map(
-            normalizeSearchResult,
-          ),
-
+      items,
       query,
-
-      source: "youtube",
+      source
     });
   } catch (error) {
     console.error(
-      "Music search error:",
-      error,
+      "music search error:",
+      error
     );
 
-    return errorResponse(
+    return error_response(
       error instanceof Error
         ? error.message
-        : "Unable to search music",
-      502,
+        : "unable to search music",
+      502
     );
   }
 }
 
-async function handleSong(
+async function handle_song(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing song ID",
-      400,
+    return error_response(
+      "missing song id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/song/${encodeURIComponent(id)}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/song/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Song request failed:",
-      error,
+      "song request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch song",
-      502,
+    return error_response(
+      "unable to fetch song",
+      502
     );
   }
 }
 
-async function handleTrack(
+async function handle_track(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing track ID",
-      400,
+    return error_response(
+      "missing track id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/track/${encodeURIComponent(id)}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/track/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Track request failed:",
-      error,
+      "track request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch track",
-      502,
+    return error_response(
+      "unable to fetch track",
+      502
     );
   }
 }
 
-async function handleArtist(
+async function handle_artist(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing artist ID",
-      400,
+    return error_response(
+      "missing artist id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/artist/${encodeURIComponent(id)}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/artist/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Artist request failed:",
-      error,
+      "artist request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch artist",
-      502,
+    return error_response(
+      "unable to fetch artist",
+      502
     );
   }
 }
 
-async function handleAlbum(
+async function handle_album(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing album ID",
-      400,
+    return error_response(
+      "missing album id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/album/${encodeURIComponent(id)}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/album/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Album request failed:",
-      error,
+      "album request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch album",
-      502,
+    return error_response(
+      "unable to fetch album",
+      502
     );
   }
 }
 
-async function handleQueue(
+async function handle_queue(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing song ID",
-      400,
+    return error_response(
+      "missing song id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/queue/${encodeURIComponent(id)}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/queue/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Queue request failed:",
-      error,
+      "queue request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to create queue",
-      502,
+    return error_response(
+      "unable to create queue",
+      502
     );
   }
 }
 
-async function handleRecommendations(
+async function handle_recommendations(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing queue ID",
-      400,
+    return error_response(
+      "missing queue id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/recommendations/queue/${encodeURIComponent(
-          id,
-        )}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/recommendations/queue/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Recommendation request failed:",
-      error,
+      "recommendation request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch recommendations",
-      502,
+    return error_response(
+      "unable to fetch recommendations",
+      502
     );
   }
 }
 
-async function handleStream(
+async function handle_stream(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (
     req.method !== "GET" &&
     req.method !== "HEAD"
   ) {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing song ID",
-      400,
+    return error_response(
+      "missing song id",
+      400
     );
   }
 
   try {
-    const upstreamUrl =
-      buildUpstreamUrl(
-        `/stream/${encodeURIComponent(id)}`,
+    const upstream_url =
+      build_upstream_url(
+        `/stream/${encodeURIComponent(id)}`
       );
 
     const headers: Record<
       string,
       string
     > = {
-      ...MUSIC_HEADERS,
+      ...music_headers
     };
 
     const range =
       req.headers.get("range");
 
     if (range) {
-      headers.Range = range;
+      headers.Range =
+        range;
     }
 
     const response =
-      await fetch(upstreamUrl, {
-        method:
-          req.method === "HEAD"
-            ? "HEAD"
-            : "GET",
+      await fetch(
+        upstream_url,
+        {
+          method:
+            req.method === "HEAD"
+              ? "HEAD"
+              : "GET",
+          headers
+        }
+      );
 
-        headers,
-      });
-
-    const responseHeaders =
+    const response_headers =
       new Headers();
 
-    const copyHeaders = [
+    const copy_headers = [
       "content-type",
       "content-length",
       "content-range",
       "accept-ranges",
       "cache-control",
       "etag",
-      "last-modified",
+      "last-modified"
     ];
 
-    for (const name of copyHeaders) {
+    for (
+      const name
+      of copy_headers
+    ) {
       const value =
-        response.headers.get(name);
+        response.headers.get(
+          name
+        );
 
       if (value) {
-        responseHeaders.set(
+        response_headers.set(
           name,
-          value,
+          value
         );
       }
     }
 
-    responseHeaders.set(
+    response_headers.set(
       "Access-Control-Allow-Origin",
-      "*",
+      "*"
     );
 
     return new Response(
@@ -641,347 +826,421 @@ async function handleStream(
         ? null
         : response.body,
       {
-        status: response.status,
-        headers: responseHeaders,
-      },
+        status:
+          response.status,
+        headers:
+          response_headers
+      }
     );
   } catch (error) {
     console.error(
-      "Music stream failed:",
-      error,
+      "music stream failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to stream track",
-      502,
+    return error_response(
+      "unable to stream track",
+      502
     );
   }
 }
 
-async function handleLyrics(
+async function handle_lyrics(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
-    );
-  }
-
-  if (!id) {
-    return errorResponse(
-      "Missing song ID",
-      400,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   const url = new URL(req.url);
 
-  const params = new URLSearchParams();
-
   const title =
-    getQueryParam(url, "title");
+    get_query_param(
+      url,
+      "title"
+    );
 
   const artist =
-    getQueryParam(url, "artist");
+    get_query_param(
+      url,
+      "artist"
+    );
 
   const duration =
-    getQueryParam(url, "duration");
+    get_query_param(
+      url,
+      "duration"
+    );
 
-  if (title) {
-    params.set("title", title);
+  if (!title || !artist) {
+    return error_response(
+      "missing title or artist",
+      400
+    );
   }
 
-  if (artist) {
-    params.set("artist", artist);
-  }
+  const params =
+    new URLSearchParams();
+
+  params.set(
+    "track_name",
+    title
+  );
+
+  params.set(
+    "artist_name",
+    artist
+  );
 
   if (duration) {
-    params.set(
-      "duration",
-      duration,
-    );
+    const seconds =
+      Math.round(
+        Number(duration)
+      );
+
+    if (
+      Number.isFinite(seconds) &&
+      seconds > 0
+    ) {
+      params.set(
+        "duration",
+        String(seconds)
+      );
+    }
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/lyrics/${encodeURIComponent(id)}`,
-        params,
-      ),
-    );
+    const response =
+      await fetch(
+        `https://lrclib.net/api/get?${params.toString()}`,
+        {
+          headers: {
+            Accept:
+              "application/json",
+            "User-Agent":
+              "celestial/1.0"
+          }
+        }
+      );
+
+    if (response.status === 404) {
+      return json({
+        syncedLyrics: null,
+        plainLyrics: null
+      });
+    }
+
+    if (!response.ok) {
+      return error_response(
+        "unable to fetch lyrics",
+        502
+      );
+    }
+
+    const data =
+      await response.json() as any;
+
+    return json({
+      id:
+        data?.id ||
+        null,
+      trackName:
+        data?.trackName ||
+        title,
+      artistName:
+        data?.artistName ||
+        artist,
+      albumName:
+        data?.albumName ||
+        null,
+      duration:
+        data?.duration ||
+        null,
+      instrumental:
+        data?.instrumental ||
+        false,
+      syncedLyrics:
+        data?.syncedLyrics ||
+        null,
+      plainLyrics:
+        data?.plainLyrics ||
+        null
+    });
   } catch (error) {
     console.error(
-      "Lyrics request failed:",
-      error,
+      "lyrics request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch lyrics",
-      502,
+    return error_response(
+      "unable to fetch lyrics",
+      502
     );
   }
 }
 
-async function handleLyricsPrefetch(
-  req: Request,
+async function handle_lyrics_prefetch(
+  req: Request
 ): Promise<Response> {
   if (req.method !== "POST") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   try {
-    const body = await req.json() as {
-      source?: unknown;
-    };
+    const body =
+      await req.json() as {
+        source?: unknown;
+      };
 
     const response =
       await fetch(
-        buildUpstreamUrl(
-          "/lyrics/prefetch",
+        build_upstream_url(
+          "/lyrics/prefetch"
         ),
         {
           method: "POST",
           headers: {
-            ...MUSIC_HEADERS,
+            ...music_headers,
             "Content-Type":
-              "application/json",
+              "application/json"
           },
-          body: JSON.stringify(body),
-        },
+          body:
+            JSON.stringify(body)
+        }
       );
 
     return new Response(
       response.body,
       {
-        status: response.status,
+        status:
+          response.status,
         headers: {
           "Content-Type":
             response.headers.get(
-              "content-type",
+              "content-type"
             ) ??
-            "application/json",
-        },
-      },
+            "application/json"
+        }
+      }
     );
   } catch (error) {
     console.error(
-      "Lyrics prefetch failed:",
-      error,
+      "lyrics prefetch failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to prefetch lyrics",
-      502,
+    return error_response(
+      "unable to prefetch lyrics",
+      502
     );
   }
 }
-
-async function handleLossless(
+async function handle_lossless(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing Qobuz ID",
-      400,
+    return error_response(
+      "missing qobuz id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/lossless/qobuz/${encodeURIComponent(
-          id,
-        )}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/lossless/qobuz/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Lossless request failed:",
-      error,
+      "lossless request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch lossless stream",
-      502,
+    return error_response(
+      "unable to fetch lossless stream",
+      502
     );
   }
 }
 
-async function handleMusicImage(
+async function handle_music_image(
   req: Request,
-  idAndPath: string,
+  id_and_path: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
-  if (!idAndPath) {
-    return errorResponse(
-      "Missing image ID",
-      400,
+  if (!id_and_path) {
+    return error_response(
+      "missing image id",
+      400
     );
   }
 
   const parts =
-    idAndPath.split("/");
+    id_and_path.split("/");
 
   const id =
     parts.shift();
 
   if (!id) {
-    return errorResponse(
-      "Missing image ID",
-      400,
+    return error_response(
+      "missing image id",
+      400
     );
   }
 
-  const imagePath =
+  const image_path =
     parts.length > 0
       ? `/${parts.join("/")}`
       : "";
 
   const url =
-    buildUpstreamUrl(
-      `/m-img/${encodeURIComponent(id)}${imagePath}`,
-      new URL(req.url).searchParams,
+    build_upstream_url(
+      `/m-img/${encodeURIComponent(id)}${image_path}`,
+      new URL(req.url).searchParams
     );
 
   try {
-    return await proxyResponse(
-      url,
+    return await proxy_response(
+      url
     );
   } catch (error) {
     console.error(
-      "Music image failed:",
-      error,
+      "music image failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch image",
-      502,
+    return error_response(
+      "unable to fetch image",
+      502
     );
   }
 }
 
-async function handleArtistImage(
+async function handle_artist_image(
   req: Request,
-  id: string,
+  id: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   if (!id) {
-    return errorResponse(
-      "Missing artist channel ID",
-      400,
+    return error_response(
+      "missing artist channel id",
+      400
     );
   }
 
   try {
-    return await proxyResponse(
-      buildUpstreamUrl(
-        `/artist-img/${encodeURIComponent(
-          id,
-        )}`,
-      ),
+    return await proxy_response(
+      build_upstream_url(
+        `/artist-img/${encodeURIComponent(id)}`
+      )
     );
   } catch (error) {
     console.error(
-      "Artist image failed:",
-      error,
+      "artist image failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch artist image",
-      502,
+    return error_response(
+      "unable to fetch artist image",
+      502
     );
   }
 }
 
-async function handleL3(
+async function handle_l3(
   req: Request,
-  path: string,
+  path: string
 ): Promise<Response> {
   if (req.method !== "GET") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   const value =
     path.replace(
       /^\/api\/music\/l3\/?/,
-      "",
+      ""
     );
 
   if (!value) {
-    return errorResponse(
-      "Missing L3 URL",
-      400,
+    return error_response(
+      "missing l3 url",
+      400
     );
   }
 
   try {
-    const upstreamUrl =
-      `${MUSIC_API_BASE}/l3/${value}`;
+    const upstream_url =
+      `${music_api_base}/l3/${value}`;
 
-    return await proxyResponse(
-      upstreamUrl,
+    return await proxy_response(
+      upstream_url
     );
   } catch (error) {
     console.error(
-      "L3 request failed:",
-      error,
+      "l3 request failed:",
+      error
     );
 
-    return errorResponse(
-      "Unable to fetch L3 resource",
-      502,
+    return error_response(
+      "unable to fetch l3 resource",
+      502
     );
   }
 }
 
-async function handleSource(
-  req: Request,
+async function handle_source(
+  req: Request
 ): Promise<Response> {
   if (req.method === "GET") {
     return json({
-      current: currentSource,
+      current:
+        current_source
     });
   }
 
   if (req.method !== "POST") {
-    return errorResponse(
-      "Method not allowed",
-      405,
+    return error_response(
+      "method not allowed",
+      405
     );
   }
 
   try {
-    const body = await req.json() as {
-      source?: unknown;
-    };
+    const body =
+      await req.json() as {
+        source?: unknown;
+      };
 
     const source =
       body?.source;
@@ -991,27 +1250,29 @@ async function handleSource(
       source !== "qobuz" &&
       source !== "soundcloud"
     ) {
-      return errorResponse(
-        "Invalid music source",
-        400,
+      return error_response(
+        "invalid music source",
+        400
       );
     }
 
-    currentSource = source;
+    current_source =
+      source;
 
     return json({
-      current: currentSource,
+      current:
+        current_source
     });
   } catch {
-    return errorResponse(
-      "Invalid JSON body",
-      400,
+    return error_response(
+      "invalid json body",
+      400
     );
   }
 }
 
 export async function handleMusicRequest(
-  req: Request,
+  req: Request
 ): Promise<Response | null> {
   const url =
     new URL(req.url);
@@ -1021,7 +1282,7 @@ export async function handleMusicRequest(
 
   if (
     !path.startsWith(
-      "/api/music",
+      "/api/music"
     )
   ) {
     return null;
@@ -1034,249 +1295,259 @@ export async function handleMusicRequest(
     return json({
       ok: true,
       service: "music",
-      source: currentSource,
+      source:
+        current_source
     });
   }
 
   if (
-    path === "/api/music/search"
+    path ===
+    "/api/music/search"
   ) {
-    return handleSearch(req);
+    return handle_search(
+      req
+    );
   }
 
   if (
-    path === "/api/music/source"
+    path ===
+    "/api/music/source"
   ) {
-    return handleSource(req);
+    return handle_source(
+      req
+    );
   }
 
   if (
     path ===
     "/api/music/lyrics/prefetch"
   ) {
-    return handleLyricsPrefetch(req);
-  }
-
-  if (
-    path.startsWith(
-      "/api/music/l3/",
-    )
-  ) {
-    return handleL3(
-      req,
-      path,
+    return handle_lyrics_prefetch(
+      req
     );
   }
 
   if (
     path.startsWith(
-      "/api/music/m-img/",
+      "/api/music/l3/"
+    )
+  ) {
+    return handle_l3(
+      req,
+      path
+    );
+  }
+
+  if (
+    path.startsWith(
+      "/api/music/m-img/"
     )
   ) {
     const value =
       path.slice(
         "/api/music/m-img/"
-          .length,
+          .length
       );
 
-    return handleMusicImage(
+    return handle_music_image(
       req,
-      value,
+      value
     );
   }
 
   if (
     path.startsWith(
-      "/api/music/artist-img/",
+      "/api/music/artist-img/"
     )
   ) {
     const id =
       path.slice(
         "/api/music/artist-img/"
-          .length,
+          .length
       );
 
-    return handleArtistImage(
+    return handle_artist_image(
       req,
-      id,
+      id
     );
   }
 
-  const recommendationsPrefix =
+  const recommendations_prefix =
     "/api/music/recommendations/queue/";
 
   if (
     path.startsWith(
-      recommendationsPrefix,
+      recommendations_prefix
     )
   ) {
     const id =
       path.slice(
-        recommendationsPrefix.length,
+        recommendations_prefix.length
       );
 
-    return handleRecommendations(
+    return handle_recommendations(
       req,
-      id,
+      id
     );
   }
 
-  const losslessPrefix =
+  const lossless_prefix =
     "/api/music/lossless/qobuz/";
 
   if (
     path.startsWith(
-      losslessPrefix,
+      lossless_prefix
     )
   ) {
     const id =
       path.slice(
-        losslessPrefix.length,
+        lossless_prefix.length
       );
 
-    return handleLossless(
+    return handle_lossless(
       req,
-      id,
+      id
     );
   }
 
-  const streamPrefix =
+  const stream_prefix =
     "/api/music/stream/";
 
   if (
     path.startsWith(
-      streamPrefix,
+      stream_prefix
     )
   ) {
     const id =
       path.slice(
-        streamPrefix.length,
+        stream_prefix.length
       );
 
-    return handleStream(
+    return handle_stream(
       req,
-      id,
+      id
     );
   }
 
-  const lyricsPrefix =
+  const lyrics_prefix =
     "/api/music/lyrics/";
 
   if (
     path.startsWith(
-      lyricsPrefix,
+      lyrics_prefix
     )
   ) {
     const id =
       path.slice(
-        lyricsPrefix.length,
+        lyrics_prefix.length
       );
 
-    return handleLyrics(
+    return handle_lyrics(
       req,
-      id,
+      id
     );
   }
 
-  const queuePrefix =
+  const queue_prefix =
     "/api/music/queue/";
 
   if (
     path.startsWith(
-      queuePrefix,
+      queue_prefix
     )
   ) {
     const id =
       path.slice(
-        queuePrefix.length,
+        queue_prefix.length
       );
 
-    return handleQueue(
+    return handle_queue(
       req,
-      id,
+      id
     );
   }
 
-  const trackPrefix =
+  const track_prefix =
     "/api/music/track/";
 
   if (
     path.startsWith(
-      trackPrefix,
+      track_prefix
     )
   ) {
     const id =
       path.slice(
-        trackPrefix.length,
+        track_prefix.length
       );
 
-    return handleTrack(
+    return handle_track(
       req,
-      id,
+      id
     );
   }
 
-  const songPrefix =
+  const song_prefix =
     "/api/music/song/";
 
   if (
     path.startsWith(
-      songPrefix,
+      song_prefix
     )
   ) {
     const id =
       path.slice(
-        songPrefix.length,
+        song_prefix.length
       );
 
-    return handleSong(
+    return handle_song(
       req,
-      id,
+      id
     );
   }
 
-  const artistPrefix =
+  const artist_prefix =
     "/api/music/artist/";
 
   if (
     path.startsWith(
-      artistPrefix,
+      artist_prefix
     )
   ) {
     const id =
       path.slice(
-        artistPrefix.length,
+        artist_prefix.length
       );
 
-    return handleArtist(
+    return handle_artist(
       req,
-      id,
+      id
     );
   }
 
-  const albumPrefix =
+  const album_prefix =
     "/api/music/album/";
 
   if (
     path.startsWith(
-      albumPrefix,
+      album_prefix
     )
   ) {
     const id =
       path.slice(
-        albumPrefix.length,
+        album_prefix.length
       );
 
-    return handleAlbum(
+    return handle_album(
       req,
-      id,
+      id
     );
   }
 
   return json(
     {
-      error: "Unknown music endpoint",
+      error:
+        "unknown music endpoint"
     },
-    404,
+    404
   );
 }

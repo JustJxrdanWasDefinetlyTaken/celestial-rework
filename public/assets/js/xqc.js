@@ -38,8 +38,13 @@ function isHelperUrl(value) {
     return input === "/c3r8v7qk2mx9pd4n/" || input.toLowerCase() === "celestial://helper";
 }
 
+function isMusicUrl(value) {
+    const input = String(value ?? "").trim();
+    return input === "/wK7qM2vX9pL4nR8tZ1cF6hJ3sD0aY5uB/" || input.toLowerCase() === "celestial://music";
+}
+
 function updateReloadButton(tab) {
-    const disabled = !tab || isPlayablesUrl(tab.url) || isHelperUrl(tab.url);
+    const disabled = !tab || isPlayablesUrl(tab.url) || isHelperUrl(tab.url) || isMusicUrl(tab.url);
     reloadBtn.disabled = disabled;
     reloadBtn.setAttribute("aria-disabled", String(disabled));
 }
@@ -49,6 +54,7 @@ function norm(value) {
 
     if (isPlayablesUrl(input)) return "celestial://playables";
     if (isHelperUrl(input)) return "celestial://helper";
+    if (isMusicUrl(input)) return "celestial://music";
     if (!input) return "https://search.brave.com";
     if (/^https?:\/\//i.test(input)) return input;
 
@@ -92,7 +98,8 @@ function setTabFavicon(tab) {
         tab.isNewTab ||
         !tab.url ||
         isPlayablesUrl(tab.url) ||
-        isHelperUrl(tab.url)
+        isHelperUrl(tab.url) ||
+        isMusicUrl(tab.url)
     ) {
         tab.placeholder.hidden = false;
         tab.placeholder.style.display = "block";
@@ -156,6 +163,12 @@ function updateTabTitle(tab) {
         return;
     }
 
+    if (isMusicUrl(tab.url)) {
+        tab.titleElement.textContent = "music";
+        tab.button.title = "music";
+        return;
+    }
+
     let title = "";
 
     try {
@@ -183,7 +196,9 @@ function syncAddressBar(tab) {
             ? "celestial://playables"
             : isHelperUrl(tab.url)
                 ? "celestial://helper"
-                : tab.url;
+                : isMusicUrl(tab.url)
+                    ? "celestial://music"
+                    : tab.url;
 
     updateReloadButton(tab);
 }
@@ -314,6 +329,7 @@ function isBookmarkable(tab) {
         !tab.isNewTab &&
         !isPlayablesUrl(tab.url) &&
         !isHelperUrl(tab.url) &&
+        !isMusicUrl(tab.url) &&
         /^https?:\/\//i.test(tab.url)
     );
 }
@@ -622,6 +638,11 @@ function createTab() {
             url: "/c3r8v7qk2mx9pd4n/"
         },
         {
+            name: "music",
+            image: "/assets/img/mu.png",
+            url: "/wK7qM2vX9pL4nR8tZ1cF6hJ3sD0aY5uB/"
+        },
+        {
             name: "movies",
             image: "/assets/img/m.png",
             url: "https://dulo.mov"
@@ -694,7 +715,7 @@ function createTab() {
 
         if (!tabs.has(tab.id)) return;
 
-        if (isPlayablesUrl(tab.url) || isHelperUrl(tab.url)) {
+        if (isPlayablesUrl(tab.url) || isHelperUrl(tab.url) || isMusicUrl(tab.url)) {
             updateTabTitle(tab);
             setTabFavicon(tab);
             syncAddressBar(tab);
@@ -766,6 +787,21 @@ async function navigateTab(tab, value) {
         return;
     }
 
+    if (isMusicUrl(input)) {
+        tab.url = "/wK7qM2vX9pL4nR8tZ1cF6hJ3sD0aY5uB/";
+        tab.isNewTab = false;
+        tab.page.hidden = true;
+        tab.frame = null;
+
+        updateTabTitle(tab);
+        setTabFavicon(tab);
+        syncAddressBar(tab);
+        updateReloadButton(tab);
+
+        tab.iframe.src = "/wK7qM2vX9pL4nR8tZ1cF6hJ3sD0aY5uB/";
+        return;
+    }
+
     const url = norm(input);
 
     if (!scramjet) return;
@@ -833,7 +869,8 @@ document.getElementById("backBtn").addEventListener("click", () => {
     if (
         !tab?.frame?.back ||
         isPlayablesUrl(tab.url) ||
-        isHelperUrl(tab.url)
+        isHelperUrl(tab.url) ||
+        isMusicUrl(tab.url)
     ) {
         return;
     }
@@ -849,7 +886,8 @@ document.getElementById("forwardBtn").addEventListener("click", () => {
     if (
         !tab?.frame?.forward ||
         isPlayablesUrl(tab.url) ||
-        isHelperUrl(tab.url)
+        isHelperUrl(tab.url) ||
+        isMusicUrl(tab.url)
     ) {
         return;
     }
@@ -865,7 +903,8 @@ reloadBtn.addEventListener("click", () => {
     if (
         !tab ||
         isPlayablesUrl(tab.url) ||
-        isHelperUrl(tab.url)
+        isHelperUrl(tab.url) ||
+        isMusicUrl(tab.url)
     ) {
         return;
     }
