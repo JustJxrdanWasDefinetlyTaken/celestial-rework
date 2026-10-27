@@ -1,4 +1,3 @@
-
 import {
     installLucideWispEncryption,
     LUCIDE_WISP_URL
@@ -32,11 +31,15 @@ const tabs = new Map();
 function isPlayablesUrl(value) {
     const input = String(value ?? "").trim();
     return input === "/-/" || input.toLowerCase() === "celestial://playables";
-    return input === "/cg/" || input.toLowerCase() === "celestial://playables";
+}
+
+function isHelperUrl(value) {
+    const input = String(value ?? "").trim();
+    return input === "/c3r8v7qk2mx9pd4n/" || input.toLowerCase() === "celestial://helper";
 }
 
 function updateReloadButton(tab) {
-    const disabled = !tab || isPlayablesUrl(tab.url);
+    const disabled = !tab || isPlayablesUrl(tab.url) || isHelperUrl(tab.url);
     reloadBtn.disabled = disabled;
     reloadBtn.setAttribute("aria-disabled", String(disabled));
 }
@@ -45,6 +48,7 @@ function norm(value) {
     const input = value.trim();
 
     if (isPlayablesUrl(input)) return "celestial://playables";
+    if (isHelperUrl(input)) return "celestial://helper";
     if (!input) return "https://search.brave.com";
     if (/^https?:\/\//i.test(input)) return input;
 
@@ -62,6 +66,7 @@ function norm(value) {
 function getFaviconUrls(url) {
     try {
         const domain = new URL(url, location.href).hostname;
+
         return [
             `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`,
             `https://icons.duckduckgo.com/ip3/${encodeURIComponent(domain)}.ico`
@@ -83,7 +88,12 @@ function setTabFavicon(tab) {
     tab.favicon.hidden = true;
     tab.favicon.style.display = "none";
 
-    if (tab.isNewTab || !tab.url || isPlayablesUrl(tab.url)) {
+    if (
+        tab.isNewTab ||
+        !tab.url ||
+        isPlayablesUrl(tab.url) ||
+        isHelperUrl(tab.url)
+    ) {
         tab.placeholder.hidden = false;
         tab.placeholder.style.display = "block";
         return;
@@ -140,6 +150,12 @@ function updateTabTitle(tab) {
         return;
     }
 
+    if (isHelperUrl(tab.url)) {
+        tab.titleElement.textContent = "helper";
+        tab.button.title = "helper";
+        return;
+    }
+
     let title = "";
 
     try {
@@ -165,13 +181,16 @@ function syncAddressBar(tab) {
         ? ""
         : isPlayablesUrl(tab.url)
             ? "celestial://playables"
-            : tab.url;
+            : isHelperUrl(tab.url)
+                ? "celestial://helper"
+                : tab.url;
 
     updateReloadButton(tab);
 }
 
 function clearTabTimer(tab) {
     if (!tab) return;
+
     clearTimeout(tab.navigationTimer);
     tab.navigationTimer = null;
 }
@@ -181,6 +200,7 @@ function startNavigationFallback(tab) {
 
     tab.navigationTimer = setTimeout(() => {
         if (!tabs.has(tab.id)) return;
+
         syncAddressBar(tab);
         updateTabTitle(tab);
         setTabFavicon(tab);
@@ -189,12 +209,14 @@ function startNavigationFallback(tab) {
 
 function selectTab(id) {
     const tab = tabs.get(id);
+
     if (!tab) return;
 
     activeTabId = id;
 
     for (const item of tabs.values()) {
         const active = item.id === id;
+
         item.button.classList.toggle("active", active);
         item.button.setAttribute("aria-selected", String(active));
         item.iframe.classList.toggle("active", active);
@@ -215,6 +237,7 @@ function selectTab(id) {
 
 function closeTab(id) {
     const tab = tabs.get(id);
+
     if (!tab) return;
 
     clearTabTimer(tab);
@@ -226,6 +249,7 @@ function closeTab(id) {
 
     if (activeTabId === id) {
         activeTabId = null;
+
         const remaining = [...tabs.keys()];
 
         if (remaining.length) {
@@ -289,6 +313,7 @@ function isBookmarkable(tab) {
         tab &&
         !tab.isNewTab &&
         !isPlayablesUrl(tab.url) &&
+        !isHelperUrl(tab.url) &&
         /^https?:\/\//i.test(tab.url)
     );
 }
@@ -298,6 +323,7 @@ function getBookmarkTitle(tab) {
 
     try {
         const title = tab.iframe.contentDocument?.title?.trim();
+
         if (title) return title;
     } catch {}
 
@@ -404,6 +430,7 @@ function showBookmarks() {
 
         open.addEventListener("click", () => {
             const tab = tabs.get(activeTabId);
+
             if (!tab) return;
 
             closeBookmarks();
@@ -429,6 +456,7 @@ function showBookmarks() {
 
     panel.append(header, list);
     document.body.appendChild(panel);
+
     bookmarkPanel = panel;
 
     if (window.lucide) {
@@ -586,14 +614,17 @@ function createTab() {
         {
             name: "playables",
             image: "/assets/img/s.png",
-            url: "/-/",
-            reversed: true
+            url: "/-/"
+        },
+        {
+            name: "helper",
+            image: "/assets/img/h.png",
+            url: "/c3r8v7qk2mx9pd4n/"
         },
         {
             name: "movies",
             image: "/assets/img/m.png",
-            url: "https://dulo.mov",
-            reversed: false
+            url: "https://dulo.mov"
         }
     ];
 
@@ -635,8 +666,10 @@ function createTab() {
         shortcut.append(icon, label);
 
         shortcut.addEventListener("click", () => {
-            if (item.reversed) {
+            if (item.name === "playables") {
                 navigateTab(tab, "celestial://playables");
+            } else if (item.name === "helper") {
+                navigateTab(tab, "celestial://helper");
             } else {
                 navigateTab(tab, item.url);
             }
@@ -661,7 +694,7 @@ function createTab() {
 
         if (!tabs.has(tab.id)) return;
 
-        if (isPlayablesUrl(tab.url)) {
+        if (isPlayablesUrl(tab.url) || isHelperUrl(tab.url)) {
             updateTabTitle(tab);
             setTabFavicon(tab);
             syncAddressBar(tab);
@@ -718,6 +751,21 @@ async function navigateTab(tab, value) {
         return;
     }
 
+    if (isHelperUrl(input)) {
+        tab.url = "/c3r8v7qk2mx9pd4n/";
+        tab.isNewTab = false;
+        tab.page.hidden = true;
+        tab.frame = null;
+
+        updateTabTitle(tab);
+        setTabFavicon(tab);
+        syncAddressBar(tab);
+        updateReloadButton(tab);
+
+        tab.iframe.src = "/c3r8v7qk2mx9pd4n/";
+        return;
+    }
+
     const url = norm(input);
 
     if (!scramjet) return;
@@ -766,6 +814,7 @@ window.addEventListener("message", event => {
 
 function go() {
     const tab = tabs.get(activeTabId);
+
     if (tab) navigateTab(tab, urlInput.value);
 }
 
@@ -781,7 +830,13 @@ document.getElementById("newTab").addEventListener("click", createTab);
 document.getElementById("backBtn").addEventListener("click", () => {
     const tab = tabs.get(activeTabId);
 
-    if (!tab?.frame?.back || isPlayablesUrl(tab.url)) return;
+    if (
+        !tab?.frame?.back ||
+        isPlayablesUrl(tab.url) ||
+        isHelperUrl(tab.url)
+    ) {
+        return;
+    }
 
     clearTabTimer(tab);
     tab.frame.back();
@@ -791,7 +846,13 @@ document.getElementById("backBtn").addEventListener("click", () => {
 document.getElementById("forwardBtn").addEventListener("click", () => {
     const tab = tabs.get(activeTabId);
 
-    if (!tab?.frame?.forward || isPlayablesUrl(tab.url)) return;
+    if (
+        !tab?.frame?.forward ||
+        isPlayablesUrl(tab.url) ||
+        isHelperUrl(tab.url)
+    ) {
+        return;
+    }
 
     clearTabTimer(tab);
     tab.frame.forward();
@@ -801,7 +862,13 @@ document.getElementById("forwardBtn").addEventListener("click", () => {
 reloadBtn.addEventListener("click", () => {
     const tab = tabs.get(activeTabId);
 
-    if (!tab || isPlayablesUrl(tab.url)) return;
+    if (
+        !tab ||
+        isPlayablesUrl(tab.url) ||
+        isHelperUrl(tab.url)
+    ) {
+        return;
+    }
 
     clearTabTimer(tab);
 

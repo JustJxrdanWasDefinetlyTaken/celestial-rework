@@ -1,5 +1,3 @@
-// music.ts
-
 const MUSIC_API_BASE = "https://musicthing.space/api";
 const MUSIC_API_TOKEN = "galactic";
 
@@ -150,10 +148,6 @@ async function proxyResponse(
   );
 }
 
-/**
- * Normalize the musicthing.space search response
- * into the format used by the frontend.
- */
 function normalizeSearchResult(
   item: any,
 ) {
@@ -252,14 +246,6 @@ async function handleSearch(
   const params = new URLSearchParams();
 
   params.set("q", query);
-
-  /*
-   * musicthing.space currently handles
-   * the actual YouTube music search.
-   *
-   * Limit is kept client-side because the
-   * upstream endpoint returns its own result set.
-   */
 
   try {
     const response =
@@ -603,10 +589,6 @@ async function handleStream(
       ...MUSIC_HEADERS,
     };
 
-    /*
-     * Forward byte ranges so the HTML5
-     * audio element can seek correctly.
-     */
     const range =
       req.headers.get("range");
 
@@ -869,16 +851,6 @@ async function handleMusicImage(
     );
   }
 
-  /*
-   * Example:
-   *
-   * /api/music/m-img/9cHbvRUALrc/maxresdefault.jpg
-   *
-   * becomes:
-   *
-   * /api/m-img/9cHbvRUALrc/maxresdefault.jpg
-   */
-
   const imagePath =
     parts.length > 0
       ? `/${parts.join("/")}`
@@ -971,10 +943,6 @@ async function handleL3(
   }
 
   try {
-    /*
-     * The upstream API expects the L3 URL
-     * as the path after /l3/.
-     */
     const upstreamUrl =
       `${MUSIC_API_BASE}/l3/${value}`;
 
@@ -1018,13 +986,6 @@ async function handleSource(
     const source =
       body?.source;
 
-    /*
-     * The musicthing.space search API
-     * currently returns YouTube-based
-     * results. We still keep this state
-     * endpoint so the frontend can remember
-     * the selected source.
-     */
     if (
       source !== "youtube" &&
       source !== "qobuz" &&
@@ -1049,17 +1010,6 @@ async function handleSource(
   }
 }
 
-/**
- * Main music router.
- *
- * Your main server should contain:
- *
- *   const musicR = await handleMusicRequest(req);
- *
- *   if (musicR) {
- *     return musicR;
- *   }
- */
 export async function handleMusicRequest(
   req: Request,
 ): Promise<Response | null> {
@@ -1077,9 +1027,6 @@ export async function handleMusicRequest(
     return null;
   }
 
-  /*
-   * /api/music
-   */
   if (
     path === "/api/music" ||
     path === "/api/music/"
@@ -1091,34 +1038,18 @@ export async function handleMusicRequest(
     });
   }
 
-  /*
-   * Search
-   *
-   * GET /api/music/search?q=...
-   */
   if (
     path === "/api/music/search"
   ) {
     return handleSearch(req);
   }
 
-  /*
-   * Source
-   *
-   * GET  /api/music/source
-   * POST /api/music/source
-   */
   if (
     path === "/api/music/source"
   ) {
     return handleSource(req);
   }
 
-  /*
-   * Lyrics prefetch
-   *
-   * POST /api/music/lyrics/prefetch
-   */
   if (
     path ===
     "/api/music/lyrics/prefetch"
@@ -1126,11 +1057,6 @@ export async function handleMusicRequest(
     return handleLyricsPrefetch(req);
   }
 
-  /*
-   * L3 image/resource proxy
-   *
-   * /api/music/l3/*
-   */
   if (
     path.startsWith(
       "/api/music/l3/",
@@ -1142,11 +1068,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Music image
-   *
-   * /api/music/m-img/:id/*
-   */
   if (
     path.startsWith(
       "/api/music/m-img/",
@@ -1164,11 +1085,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Artist image
-   *
-   * GET /api/music/artist-img/:channelId
-   */
   if (
     path.startsWith(
       "/api/music/artist-img/",
@@ -1186,11 +1102,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Recommendations
-   *
-   * GET /api/music/recommendations/queue/:id
-   */
   const recommendationsPrefix =
     "/api/music/recommendations/queue/";
 
@@ -1210,11 +1121,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Lossless Qobuz
-   *
-   * GET /api/music/lossless/qobuz/:id
-   */
   const losslessPrefix =
     "/api/music/lossless/qobuz/";
 
@@ -1234,11 +1140,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Stream
-   *
-   * GET /api/music/stream/:id
-   */
   const streamPrefix =
     "/api/music/stream/";
 
@@ -1258,11 +1159,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Lyrics
-   *
-   * GET /api/music/lyrics/:id
-   */
   const lyricsPrefix =
     "/api/music/lyrics/";
 
@@ -1282,11 +1178,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Queue
-   *
-   * GET /api/music/queue/:id
-   */
   const queuePrefix =
     "/api/music/queue/";
 
@@ -1306,11 +1197,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Track metadata
-   *
-   * GET /api/music/track/:id
-   */
   const trackPrefix =
     "/api/music/track/";
 
@@ -1330,11 +1216,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Song metadata
-   *
-   * GET /api/music/song/:id
-   */
   const songPrefix =
     "/api/music/song/";
 
@@ -1354,11 +1235,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Artist metadata
-   *
-   * GET /api/music/artist/:id
-   */
   const artistPrefix =
     "/api/music/artist/";
 
@@ -1378,11 +1254,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Album metadata
-   *
-   * GET /api/music/album/:id
-   */
   const albumPrefix =
     "/api/music/album/";
 
@@ -1402,9 +1273,6 @@ export async function handleMusicRequest(
     );
   }
 
-  /*
-   * Unknown music endpoint.
-   */
   return json(
     {
       error: "Unknown music endpoint",

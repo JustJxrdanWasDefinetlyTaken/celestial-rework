@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cloud gaming | celestial.</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+        @import url("/assets/css/theme.css");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background, #08090c);
+            color: var(--color, #fff);
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            padding: 72px 32px 32px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 0 14px;
+            border: 1px solid var(--pallet3, #24262d);
+            border-radius: 8px;
+            background: var(--pallet2, #111318);
+            color: var(--color, #fff);
+            font-size: 14px;
+            text-decoration: none;
+            gap: 6px;
+        }
+
+        .lucide-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .back-button:hover {
+            background: var(--pallet3, #24262d);
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto 28px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            opacity: 0.6;
+            font-size: 14px;
+        }
+
+        .search {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto 24px;
+        }
+
+        .search input {
+            width: 100%;
+            height: 46px;
+            padding: 0 16px;
+            border: 1px solid var(--pallet3, #24262d);
+            border-radius: 10px;
+            outline: none;
+            background: var(--pallet2, #111318);
+            color: var(--color, #fff);
+        }
+
+        .search input::placeholder {
+            color: inherit;
+            opacity: 0.4;
+        }
+
+        .search input:focus {
+            border-color: var(--pallet4, #555);
+        }
+
+        .games {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px;
+        }
+
+        .game {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--pallet2, #111318);
+            color: #fff;
+        }
+
+        .game img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .game:hover img {
+            transform: scale(1.04);
+            filter: brightness(0.55);
+        }
+
+        .game-info {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-start;
+            padding: 14px;
+            text-align: left;
+            background: linear-gradient(transparent 35%,
+                    rgba(0, 0, 0, 0.8));
+        }
+
+        .game-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .game-provider {
+            margin-top: 4px;
+            font-size: 11px;
+            opacity: 0.65;
+            text-transform: lowercase;
+        }
+
+        .status {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 0;
+            text-align: center;
+            opacity: 0.6;
+        }
+
+        .player-page {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            background: #000;
+        }
+
+        .player-page.open {
+            display: block;
+        }
+
+        #player {
+            width: 100%;
+            height: 100%;
+        }
+
+        .player-top {
+            position: absolute;
+            z-index: 10;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .player-top button {
+            height: 38px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            pointer-events: auto;
+        }
+
+        .player-title {
+            max-width: 60%;
+            padding: 9px 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            background: #000;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .loading-message {
+            display: none;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .loading.timed-out video {
+            display: none;
+        }
+
+        .loading.timed-out .loading-message {
+            display: block;
+        }
+
+        @media (max-width: 700px) {
+            .page {
+                padding: 72px 20px 20px;
+            }
+
+            .games {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .game-info {
+                padding: 10px;
+            }
+
+            .game-name {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body theme="default">
+    <a class="back-button" href="/-/" aria-label="back"><i data-lucide="arrow-left" class="lucide-icon"></i> Back</a>
+
+    <main class="page">
+
+        <div class="header">
+            <h1>cloud gaming</h1>
+        </div>
+
+        <div class="search">
+            <input id="search" type="text" placeholder="search..." autocomplete="off">
+        </div>
+
+        <div id="games" class="games"></div>
+        <div id="status" class="status">loading...</div>
+    </main>
+
+    <div id="playerPage" class="player-page">
+        <div class="player-top">
+            <button id="closePlayer">close</button>
+            <div id="playerTitle" class="player-title"></div>
+            <button id="fullscreen">fullscreen</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <video id="loadingVideo" src="/assets/json/cg.mov" playsinline preload="auto"></video>
+            <div id="loadingMessage" class="loading-message">taking too long to load, please try again later</div>
+        </div>
+        <div id="player"></div>
+    </div>
+
+    <script src="/astra/sdk/astra-sdk.js"></script>
+    <script>
+        const gamesElement = document.getElementById("games");
+        const statusElement = document.getElementById("status");
+        const searchElement = document.getElementById("search");
+        const playerPage = document.getElementById("playerPage");
+        const playerTitle = document.getElementById("playerTitle");
+        const loadingElement = document.getElementById("loading");
+        const loadingVideo = document.getElementById("loadingVideo");
+        const loadingMessage = document.getElementById("loadingMessage");
+        const closePlayer = document.getElementById("closePlayer");
+        const fullscreen = document.getElementById("fullscreen");
+
+        const sessionKey = "celestial-cg-session";
+        const cooldownKey = "celestial-cg-cooldown";
+
+        const sessionLimit = 45 * 60 * 1000;
+        const cooldownLimit = 5 * 60 * 1000;
+        const closeCooldownLimit = 90 * 1000;
+
+        const tabId = crypto.randomUUID();
+
+        let lessons = [];
+        let currentGame = null;
+        let sessionTimer = null;
+        let endingForLimit = false;
+
+        const astra = new Astra({
+            mount: "#player"
+        });
+
+        function getActiveSession() {
+            try {
+                const value = localStorage.getItem(sessionKey);
+
+                if (!value) {
+                    return null;
+                }
+
+                const session = JSON.parse(value);
+
+                if (
+                    !session ||
+                    !session.startedAt ||
+                    Date.now() - session.startedAt >= sessionLimit
+                ) {
+                    localStorage.removeItem(sessionKey);
+                    return null;
+                }
+
+                return session;
+            } catch {
+                localStorage.removeItem(sessionKey);
+                return null;
+            }
+        }
+
+        function getCooldownRemaining() {
+            const value = Number(
+                localStorage.getItem(cooldownKey)
+            );
+
+            if (!value) {
+                return 0;
+            }
+
+            const remaining =
+                value - Date.now();
+
+            if (remaining <= 0) {
+                localStorage.removeItem(cooldownKey);
+                return 0;
+            }
+
+            return remaining;
+        }
+
+        function formatTime(milliseconds) {
+            const seconds = Math.ceil(
+                milliseconds / 1000
+            );
+
+            const minutes = Math.floor(
+                seconds / 60
+            );
+
+            const remainingSeconds =
+                seconds % 60;
+
+            return `${minutes}:${String(
+                remainingSeconds
+            ).padStart(2, "0")}`;
+        }
+
+        function startCooldown(duration = cooldownLimit) {
+            localStorage.setItem(
+                cooldownKey,
+                String(
+                    Date.now() + duration
+                )
+            );
+        }
+
+        function claimSession(game) {
+            const active = getActiveSession();
+
+            if (
+                active &&
+                active.tabId !== tabId
+            ) {
+                return false;
+            }
+
+            localStorage.setItem(
+                sessionKey,
+                JSON.stringify({
+                    tabId,
+                    game: game.gameName,
+                    startedAt: Date.now()
+                })
+            );
+
+            return true;
+        }
+
+        function releaseSession() {
+            const active = getActiveSession();
+
+            if (
+                active &&
+                active.tabId === tabId
+            ) {
+                localStorage.removeItem(
+                    sessionKey
+                );
+            }
+
+            if (sessionTimer) {
+                clearTimeout(sessionTimer);
+                sessionTimer = null;
+            }
+        }
+
+        function resetPlayer() {
+            currentGame = null;
+
+            playerPage.classList.remove(
+                "open"
+            );
+
+            loadingElement.classList.remove(
+                "show"
+            );
+
+            loadingElement.classList.remove("timed-out");
+
+            loadingVideo.pause();
+            loadingVideo.currentTime = 0;
+            loadingVideo.muted = false;
+
+            playerTitle.textContent = "";
+        }
+
+        async function endForLimit() {
+            if (!currentGame) {
+                return;
+            }
+
+            endingForLimit = true;
+
+            startCooldown(
+                cooldownLimit
+            );
+
+            releaseSession();
+
+            try {
+                await astra.end();
+            } catch {
+                astra.stop();
+            }
+
+            resetPlayer();
+
+            alert(
+                "your 45 minute session has ended. wait 5 minutes before playing again."
+            );
+
+            endingForLimit = false;
+        }
+
+        function startSessionTimer() {
+            if (sessionTimer) {
+                clearTimeout(
+                    sessionTimer
+                );
+            }
+
+            const active =
+                getActiveSession();
+
+            if (!active) {
+                return;
+            }
+
+            const remaining =
+                sessionLimit -
+                (
+                    Date.now() -
+                    active.startedAt
+                );
+
+            sessionTimer = setTimeout(
+                endForLimit,
+                Math.max(
+                    0,
+                    remaining
+                )
+            );
+        }
+
+        function renderGames(games) {
+            gamesElement.innerHTML = "";
+
+            if (!games.length) {
+                statusElement.textContent =
+                    "no games found.";
+
+                statusElement.style.display =
+                    "block";
+
+                return;
+            }
+
+            statusElement.style.display =
+                "none";
+
+            games.forEach(game => {
+                const card =
+                    document.createElement(
+                        "button"
+                    );
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+                const info =
+                    document.createElement(
+                        "div"
+                    );
+
+                const name =
+                    document.createElement(
+                        "div"
+                    );
+
+                const provider =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className = "game";
+
+                image.src = game.logo;
+                image.alt = game.gameName;
+                image.loading = "lazy";
+
+                info.className =
+                    "game-info";
+
+                name.className =
+                    "game-name";
+
+                name.textContent =
+                    game.gameName;
+
+                provider.className =
+                    "game-provider";
+
+                provider.textContent =
+                    game.provider;
+
+                info.appendChild(name);
+                info.appendChild(provider);
+
+                card.appendChild(image);
+                card.appendChild(info);
+
+                card.addEventListener(
+                    "click",
+                    () => {
+                        playGame(game);
+                    }
+                );
+
+                gamesElement.appendChild(
+                    card
+                );
+            });
+        }
+
+        async function loadLessons() {
+            try {
+                const response =
+                    await fetch(
+                        "/cg/lessons.json",
+                        {
+                            cache: "no-store"
+                        }
+                    );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "failed to load lessons"
+                    );
+                }
+
+                const data =
+                    await response.json();
+
+                if (
+                    !data.ok ||
+                    !Array.isArray(
+                        data.games
+                    )
+                ) {
+                    throw new Error(
+                        "invalid lessons json"
+                    );
+                }
+
+                lessons = data.games;
+
+                renderGames(
+                    lessons
+                );
+            } catch (error) {
+                console.error(error);
+
+                statusElement.textContent =
+                    "failed to load games.";
+            }
+        }
+
+        async function playGame(game) {
+            const cooldown =
+                getCooldownRemaining();
+
+            if (cooldown > 0) {
+                alert(
+                    `you need to wait ${formatTime(
+                        cooldown
+                    )} before playing again.`
+                );
+
+                return;
+            }
+
+            const active =
+                getActiveSession();
+
+            if (
+                active &&
+                active.tabId !== tabId
+            ) {
+                alert(
+                    `${active.game} is already running in another tab.`
+                );
+
+                return;
+            }
+
+            if (currentGame) {
+                alert(
+                    `${currentGame.gameName} is already running.`
+                );
+
+                return;
+            }
+
+            if (!claimSession(game)) {
+                alert(
+                    "cloud gaming is already running in another tab."
+                );
+
+                return;
+            }
+
+            currentGame = game;
+
+            playerTitle.textContent =
+                game.gameName;
+
+            playerPage.classList.add(
+                "open"
+            );
+
+            loadingElement.classList.remove(
+                "timed-out"
+            );
+
+            loadingElement.classList.add(
+                "show"
+            );
+
+            loadingVideo.currentTime = 0;
+            loadingVideo.muted = false;
+
+            loadingVideo.play().catch(() => {
+                loadingVideo.muted = true;
+                loadingVideo.play().catch(() => {});
+            });
+
+            try {
+                const response =
+                    await fetch(
+                        "/api/cg",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body:
+                                JSON.stringify({
+                                    lesson:
+                                        game.embedId
+                                })
+                        }
+                    );
+
+                const session =
+                    await response.json();
+                console.log("astra session:", session);
+
+                if (!response.ok) {
+                    throw new Error(
+                        session.detail ||
+                        session.error ||
+                        "failed to create session"
+                    );
+                }
+
+                startSessionTimer();
+
+                await astra.play(
+                    session
+                );
+            } catch (error) {
+                releaseSession();
+
+                currentGame = null;
+
+                console.error(
+                    error
+                );
+
+                loadingElement.textContent =
+                    error instanceof Error
+                        ? error.message
+                        : "failed to start game";
+            }
+        }
+
+        searchElement.addEventListener(
+            "input",
+            () => {
+                const query =
+                    searchElement.value
+                        .trim()
+                        .toLowerCase();
+
+                if (!query) {
+                    renderGames(
+                        lessons
+                    );
+
+                    return;
+                }
+
+                const filtered =
+                    lessons.filter(
+                        game => {
+                            return (
+                                game.gameName
+                                    .toLowerCase()
+                                    .includes(
+                                        query
+                                    ) ||
+                                game.provider
+                                    .toLowerCase()
+                                    .includes(
+                                        query
+                                    )
+                            );
+                        }
+                    );
+
+                renderGames(
+                    filtered
+                );
+            }
+        );
+
+        closePlayer.addEventListener(
+            "click",
+            async () => {
+                if (!currentGame) {
+                    return;
+                }
+
+                startCooldown(
+                    closeCooldownLimit
+                );
+
+                releaseSession();
+
+                try {
+                    await astra.end();
+                } catch {
+                    astra.stop();
+                }
+
+                resetPlayer();
+
+                alert(
+                    "session closed. wait 1:30 before playing again."
+                );
+            }
+        );
+
+        fullscreen.addEventListener(
+            "click",
+            () => {
+                astra.fullscreen();
+            }
+        );
+
+        astra.on(
+            "connecting",
+            () => {
+                loadingElement.classList.add(
+                    "show"
+                );
+            }
+        );
+
+        astra.on(
+            "ready",
+            () => {
+                loadingVideo.muted = true;
+                loadingVideo.pause();
+
+                loadingElement.classList.remove(
+                    "show"
+                );
+            }
+        );
+
+        astra.on(
+            "ended",
+            () => {
+                releaseSession();
+
+                resetPlayer();
+
+                endingForLimit =
+                    false;
+            }
+        );
+
+        loadingVideo.addEventListener(
+            "ended",
+            () => {
+                if (!loadingElement.classList.contains("show")) {
+                    return;
+                }
+
+                loadingElement.classList.add(
+                    "timed-out"
+                );
+            }
+        );
+
+        const originalFetch = window.fetch.bind(window);
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+            const target = String(args[0] instanceof Request ? args[0].url : args[0]);
+
+            if (target.includes("/astra/api/coursework/progress/")) {
+                response.clone().json().then(data => {
+                    if (data && data.phase === "error" && data.error) {
+                        loadingVideo.muted = true;
+                        loadingVideo.pause();
+
+                        loadingMessage.textContent = data.error;
+
+                        loadingElement.classList.add(
+                            "timed-out"
+                        );
+
+                        loadingElement.classList.add(
+                            "show"
+                        );
+                    }
+                }).catch(() => {});
+            }
+
+            return response;
+        };
+
+        astra.on(
+            "error",
+            event => {
+                console.error(
+                    event
+                );
+
+                loadingVideo.muted = true;
+                loadingVideo.pause();
+
+                loadingElement.classList.add(
+                    "timed-out"
+                );
+
+                loadingElement.classList.add(
+                    "show"
+                );
+            }
+        );
+
+        window.addEventListener(
+            "storage",
+            event => {
+                if (
+                    event.key !==
+                    sessionKey
+                ) {
+                    return;
+                }
+
+                const active =
+                    getActiveSession();
+
+                if (
+                    currentGame &&
+                    active &&
+                    active.tabId !==
+                    tabId
+                ) {
+                    try {
+                        astra.stop();
+                    } catch { }
+
+                    releaseSession();
+
+                    resetPlayer();
+
+                    alert(
+                        "cloud gaming was opened in another tab."
+                    );
+                }
+            }
+        );
+
+        window.addEventListener("pagehide", () => {
+            if (!currentGame) {
+                return;
+            }
+
+            const active = getActiveSession();
+
+            if (
+                active &&
+                active.tabId === tabId
+            ) {
+                localStorage.setItem(
+                    cooldownKey,
+                    String(
+                        Date.now() +
+                        closeCooldownLimit
+                    )
+                );
+
+                localStorage.removeItem(
+                    sessionKey
+                );
+            }
+        });
+
+        loadLessons();
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+<script src="/assets/js/theme.js"></script>
+
+</html>
